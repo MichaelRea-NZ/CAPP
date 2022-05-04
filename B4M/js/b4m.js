@@ -32,7 +32,7 @@ var originalUnitSize = 120, displayUnitSize = 60, extendHexProperties = {
     height: 11,
     start: [0, 0],
     direction: 1
-}), b4mGrid = [{
+})/* , b4mGrid = [{
         x: 0,
         y: 0,
         terrain: 'open',
@@ -813,7 +813,7 @@ var originalUnitSize = 120, displayUnitSize = 60, extendHexProperties = {
         y: 10,
         terrain: 'open',
         sovietReplacement: !0
-    }];
+    }]; */
 for (var i = 0; i < b4mGrid.length; i++)
     grid.set([b4mGrid[i].x, b4mGrid[i].y], Hex(__assign(__assign({}, templateCustomProperties), b4mGrid[i])));
 "use strict";
