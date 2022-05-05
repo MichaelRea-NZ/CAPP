@@ -31,7 +31,9 @@ var templateCustomProperties = {
     germanStart: !1,
     control: null
 }
-var Hex = Honeycomb.extendHex(__assign(__assign({}, extendHexProperties), templateCustomProperties)), Grid = Honeycomb.defineGrid(Hex), grid = Grid.rectangle({
+var Hex = Honeycomb.extendHex(__assign(__assign({}, extendHexProperties), templateCustomProperties))
+var Grid = Honeycomb.defineGrid(Hex)
+export var grid = Grid.rectangle({
     width: 14,
     height: 11,
     start: [0, 0],

@@ -1,3 +1,7 @@
+"use strict";
+ // eslint-disable-next-line no-unused-vars
+import { b4mUnits } from "./units.js";
+import { grid } from "./b4m.js";
 function drawUnit(e, t, n, i) {
     if (t.position)
         for (var e_1 = 0; e_1 < b4mUnits.length; e_1++)
