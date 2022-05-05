@@ -1,8 +1,9 @@
-"use strict";
- // eslint-disable-next-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
 import { b4mUnits } from "./units.js";
 import { grid } from "./b4m.js";
 function drawUnit(e, t, n, i) {
+    const FullUnit = 120;
+    const HalfUnit = 60;
     if (t.position)
         for (var e_1 = 0; e_1 < b4mUnits.length; e_1++)
             if (t.id === b4mUnits[e_1].id) {
@@ -15,7 +16,7 @@ function drawUnit(e, t, n, i) {
                 break;
             }
     var o = 'soviet' === t.army ? document.getElementById('soviets') : document.getElementById('germans'), r = 'full' === t.strength ? 0 : 120;
-    e.drawImage(o, 120 * t.pos, r, 120, 120, n, i, 60, 60);
+    e.drawImage(o, FullUnit * t.pos, r, FullUnit, FullUnit, n, i, HalfUnit, HalfUnit);
 }
 function clearUnit(e, t, n, i) {
     for (var e_2 = 0; e_2 < b4mUnits.length; e_2++)

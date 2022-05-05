@@ -17,7 +17,7 @@ type Unit = {
     position?: Point
 }
 
-var b4mUnits: Array<Unit> = [{
+export var b4mUnits: Array<Unit> = [{
     id: 's1sh',
     pos: 0,
     army: 'soviet',
