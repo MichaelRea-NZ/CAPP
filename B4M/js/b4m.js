@@ -22,14 +22,16 @@ var extendHexProperties = {
     },
     orientation: 'flat',
     offset: 1
-}, templateCustomProperties = {
+}
+var templateCustomProperties = {
     terrain: 'off',
     city: 'none',
     river: [],
     rail: [],
     germanStart: !1,
     control: null
-}, Hex = Honeycomb.extendHex(__assign(__assign({}, extendHexProperties), templateCustomProperties)), Grid = Honeycomb.defineGrid(Hex), grid = Grid.rectangle({
+}
+var Hex = Honeycomb.extendHex(__assign(__assign({}, extendHexProperties), templateCustomProperties)), Grid = Honeycomb.defineGrid(Hex), grid = Grid.rectangle({
     width: 14,
     height: 11,
     start: [0, 0],
@@ -46,8 +48,23 @@ function b4mUnitsIndex(e) {
     return -1;
 }
 var b4mSave = null, tournamentMode = !1, playAIAs = '';
-var toNeighborsDirections = ['SE', 'S', 'SW', 'NW', 'N', 'NE'], fromNeighborsDirections = ['NW', 'N', 'NE', 'SE', 'S', 'SW'];
-var canvasBoard, board, canvasHexHighlights, hexHighlights, canvasCountersHighlights, countersHighlights, arrows, handleStep0Click, handleRedeploymentClick, handleCombatAnnounceClick, handleMovementClick, handleReinforcementClick, handleReplacementClick, handleSpecialMovementClick;
+var toNeighborsDirections = ['SE', 'S', 'SW', 'NW', 'N', 'NE']
+var fromNeighborsDirections = ['NW', 'N', 'NE', 'SE', 'S', 'SW'];
+var canvasBoard
+var board
+var canvasHexHighlights
+var hexHighlights
+var canvasCountersHighlights
+var countersHighlights
+var arrows 
+var handleStep0Click
+var handleRedeploymentClick
+var handleCombatAnnounceClick
+var handleMovementClick
+var handleReinforcementClick
+var handleReplacementClick
+var handleSpecialMovementClick;
+
 function cleanAndSaveBeforeNewPhase(e) {
     e && (b4mSave = {}, b4mSave.units = b4mUnits, b4mSave.cities = [], grid.forEach((function (e) {
         e && e.city && 'none' !== e.city && b4mSave.cities.push({
@@ -75,29 +92,7 @@ function highlightHex(e, t, n) {
 function clearHex(e, t) {
     e.globalCompositeOperation = 'destination-out', highlightHex(e, t, 'black'), e.globalCompositeOperation = 'source-over';
 }
-function drawUnit(e, t, n, i) {
-    if (t.position)
-        for (var e_1 = 0; e_1 < b4mUnits.length; e_1++)
-            if (t.id === b4mUnits[e_1].id) {
-                b4mUnits[e_1].position = {
-                    x: t.position.x,
-                    y: t.position.y
-                };
-                var n_1 = grid.get(t.position);
-                n_1 && n_1.city && 'none' !== n_1.city && (n_1.control = t.army);
-                break;
-            }
-    var o = 'soviet' === t.army ? document.getElementById('soviets') : document.getElementById('germans'), r = 'full' === t.strength ? 0 : 120;
-    e.drawImage(o, 120 * t.pos, r, 120, 120, n, i, 60, 60);
-}
-function clearUnit(e, t, n, i) {
-    for (var e_2 = 0; e_2 < b4mUnits.length; e_2++)
-        if (t.id === b4mUnits[e_2].id) {
-            b4mUnits[e_2].position = null;
-            break;
-        }
-    e.clearRect(n, i, 80, 80);
-}
+
 function moveUnit(e, t, n) {
     var i = {
         x: e.position.x,
