@@ -1,7 +1,8 @@
 // eslint-disable-next-line no-unused-vars
-import{b4mUnits} from "./units.js";
-import{grid} from "./b4m.js";
-
+//import{b4mUnits} from "./units.js";
+//import{grid} from "./b4m.js";
+var b4mUnits = [];
+var grid = {grid: function(){}};
 
 function drawUnit(e:any, t:any, n:any, i:any) {
     const FullUnit = 120;

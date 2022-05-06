@@ -211,7 +211,7 @@ var b4mGrid: Area[] = [{
         x: 3,
         y: 3,
         terrain: 'open',
-        river: ['E']
+        river: ['S', 'SE', 'NE']
     }, {
         x: 3,
         y: 4,

@@ -1,6 +1,9 @@
+"use strict";
 // eslint-disable-next-line no-unused-vars
-import { b4mUnits } from "./units.js";
-import { grid } from "./b4m.js";
+//import{b4mUnits} from "./units.js";
+//import{grid} from "./b4m.js";
+var b4mUnits = [];
+var grid = {grid: function(){}};
 function drawUnit(e, t, n, i) {
     const FullUnit = 120;
     const HalfUnit = 60;
@@ -19,9 +22,9 @@ function drawUnit(e, t, n, i) {
     e.drawImage(o, FullUnit * t.pos, r, FullUnit, FullUnit, n, i, HalfUnit, HalfUnit);
 }
 function clearUnit(e, t, n, i) {
-    for (var e_2 = 0; e_2 < b4mUnits.length; e_2++)
-        if (t.id === b4mUnits[e_2].id) {
-            b4mUnits[e_2].position = null;
+    for (var unitNum = 0; unitNum < b4mUnits.length; unitNum++)
+        if (t.id === b4mUnits[unitNum].id) {
+            b4mUnits[unitNum].position = null;
             break;
         }
     e.clearRect(n, i, 80, 80);
