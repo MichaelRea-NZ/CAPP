@@ -3,7 +3,19 @@ type Army = 'soviet' | 'german'
 type Type = 'shock' | 'infantry' | 'tank'
 type Strength = 'full' | 'reduced'
 type Point = { x: number, y: number }
-
+interface Area2  {
+    x: number,
+    y: number,
+    terrain : Terrain,
+    river?: River,
+    rail?: Rail,
+    germanStart?: boolean,
+    germanReplacement? : boolean,
+    sovietReplacement? : boolean,
+    city? : City,
+    control? : Control
+    
+    }
 type Unit = {
     id: String,
     pos: number,
@@ -16,9 +28,9 @@ type Unit = {
     strength: Strength,
     position?: Point
 }
-
+class Grid implements Area2 {}
 var b4mUnits: string|any[] = [];
-var grid = { grid: function () { } };
+var grid = {get: function (Point):Area | 'none' {return new Grid() } };
 function drawUnit(board: any, unit: Unit, boardX: number, boardY: number) {
     const FullUnit = 120;
     const HalfUnit = 60;
@@ -33,7 +45,8 @@ function drawUnit(board: any, unit: Unit, boardX: number, boardY: number) {
                 n_1 && n_1.city && 'none' !== n_1.city && (n_1.control = unit.army);
                 break;
             }
-    var o = 'soviet' === unit.army ? document.getElementById('soviets') : document.getElementById('germans'), r = 'full' === unit.strength ? 0 : 120;
+    var o = 'soviet' === unit.army ? document.getElementById('soviets') : document.getElementById('germans')
+    var r = 'full' === unit.strength ? 0 : 120;
     board.drawImage(o, FullUnit * unit.pos, r, FullUnit, FullUnit, boardX, boardY, HalfUnit, HalfUnit);
 }
 function clearUnit(board: any, unit: Unit, boardX: number, boardY: number) {
