@@ -49,7 +49,9 @@ function b4mUnitsIndex(e) {
             return t;
     return -1;
 }
-var b4mSave = null, tournamentMode = !1, playAIAs = '';
+var b4mSave = null
+var tournamentMode = !1
+var playAIAs = ''
 var toNeighborsDirections = ['SE', 'S', 'SW', 'NW', 'N', 'NE']
 var fromNeighborsDirections = ['NW', 'N', 'NE', 'SE', 'S', 'SW'];
 var canvasBoard
@@ -1110,7 +1112,9 @@ function handleMatchLoss(e) {
             break;
         }
     if (n > -1) {
-        var e_23 = 0, t_24 = document.querySelector('.table_battle div.battle_result'), i_11 = document.querySelector('.table_battle div.battle_result_action'), o = Hex(currentBattle.attackingUnits[n].position).center().add(Hex(currentBattle.attackingUnits[n].position).toPoint());
+        var e_23 = 0, t_24 = document.querySelector('.table_battle div.battle_result')
+		var i_11 = document.querySelector('.table_battle div.battle_result_action')
+		var	o = Hex(currentBattle.attackingUnits[n].position).center().add(Hex(currentBattle.attackingUnits[n].position).toPoint());
         clearUnit(board, currentBattle.attackingUnits[n], o.x - 40, o.y - 40), 'reduced' === currentBattle.attackingUnits[n].strength ? (e_23 = currentBattle.attackingUnits[n].combatReduced, t_24.innerText += ' The selected attacking unit is eliminated during the exchange.') : currentBattle.attackingUnits[n].combatFull - currentBattle.attackingUnits[n].combatReduced < matchLossValue - totalMatchedLoss ? (e_23 = currentBattle.attackingUnits[n].combatFull, t_24.innerText += ' The selected attacking unit is eliminated during the exchange.') : (e_23 = currentBattle.attackingUnits[n].combatFull - currentBattle.attackingUnits[n].combatReduced, currentBattle.attackingUnits[n].strength = 'reduced', b4mUnits[b4mUnitsIndex(currentBattle.attackingUnits[n])].strength = 'reduced', drawUnit(board, currentBattle.attackingUnits[n], o.x - 30, o.y - 30), t_24.innerText += ' The selected attacking unit loses 1 step during the exchange.'), currentBattle.attackingUnits[n].matchedLoss = e_23, totalMatchedLoss = 0;
         for (var _i = 0, _a = currentBattle.attackingUnits; _i < _a.length; _i++) {
             var e_24 = _a[_i];
@@ -1130,7 +1134,8 @@ function handleMatchLossClick(e) {
 var matchLossValue = 0, totalMatchedLoss = 0;
 function matchLoss() {
     if (matchLossValue = currentDefendingUnit.combatFull - currentDefendingUnit.combatReduced, 'reduced' === currentDefendingUnit.strength && (matchLossValue = currentDefendingUnit.combatReduced), 1 === currentBattle.attackingUnits.length) {
-        var e = document.querySelector('.table_battle div.battle_result'), t = Hex(currentBattle.attackingUnits[0].position).center().add(Hex(currentBattle.attackingUnits[0].position).toPoint());
+        var e = document.querySelector('.table_battle div.battle_result')
+		var	t = Hex(currentBattle.attackingUnits[0].position).center().add(Hex(currentBattle.attackingUnits[0].position).toPoint());
         clearUnit(board, currentBattle.attackingUnits[0], t.x - 40, t.y - 40), 'reduced' === currentBattle.attackingUnits[0].strength || currentBattle.attackingUnits[0].combatFull - currentBattle.attackingUnits[0].combatReduced < matchLossValue ? (e.innerText += ' The attacking unit is eliminated during the exchange.', document.querySelector('.table_battle div.next_battle_button').style.display = 'inline-block') : (currentBattle.attackingUnits[0].strength = 'reduced', b4mUnits[b4mUnitsIndex(currentBattle.attackingUnits[0])].strength = 'reduced', drawUnit(board, currentBattle.attackingUnits[0], t.x - 30, t.y - 30), e.innerText += ' The attacking unit loses 1 step during the exchange.', advanceAfterCombat());
     }
     else if ('' === playAIAs || playAIAs !== currentTurn.army)
@@ -1157,7 +1162,8 @@ function handleAttackingUnitLoss(e) {
         return Hex(e.position).equals(t);
     }));
     if (n.length > 0) {
-        var e_27 = document.querySelector('.table_battle div.battle_result'), t_25 = Hex(n[0].position).center().add(Hex(n[0].position).toPoint());
+        var e_27 = document.querySelector('.table_battle div.battle_result')
+		var t_25 = Hex(n[0].position).center().add(Hex(n[0].position).toPoint());
         clearUnit(board, n[0], t_25.x - 40, t_25.y - 40), 'reduced' === n[0].strength ? e_27.innerText += ' The attacking unit strength is already reduced so it is eliminated.' : (n[0].strength = 'reduced', b4mUnits[b4mUnitsIndex(n[0])].strength = 'reduced', drawUnit(board, n[0], t_25.x - 30, t_25.y - 30)), document.querySelector('.table_battle div.next_battle_button').style.display = 'inline-block', document.removeEventListener('click', handleAttackingUnitLossClick);
     }
 }
