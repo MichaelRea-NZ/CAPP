@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Area Definition tool</title>
+<!--
+<meta name="viewport" content="width=device-width, initial-scale=0.7, user-scalable=no, viewport-fit=cover">
+-->
+<!--
+<link rel="stylesheet" type="text/css" href="map.css">
+-->
+</head>
+
+<body>
+
+<div>
+<img id="map_image" src="map.png" style="display: none;">
+<canvas id="map_canvas"></canvas>
+</div>
+
+<div>
+<label for="area-name">Area id:</label>
+<input type="text" id="area-name" name="area-name">
+&nbsp;
+<input id="btn_start" type="button" value="Start">
+&nbsp;
+<input id="btn_stop" type="button" value="Stop">
+&nbsp;
+
+</div>
+<script>
+
+var map = document.getElementById('map_canvas')
+var canvas = document.getElementById('map_canvas')
+var sourceimage = document.getElementById('map_image')
+var context = canvas.getContext('2d')
+var areaData = []
+var areaName = ''
+
+function loadHandler() {
+copyMap2Canvas()
+document.getElementById('btn_start').addEventListener('click', startHandler, false)
+document.getElementById('btn_stop').addEventListener('click', stopHandler, false)
+map.addEventListener('click', clickHandler, false)
+}
+
+
+function copyMap2Canvas() {
+var imgwidth = sourceimage.width;
+var imgheight = sourceimage.height;
+canvas.width = imgwidth;
+canvas.height = imgheight;
+context.drawImage(sourceimage, 0, 0);
+}
+
+function startHandler(event) {
+console.log('start')
+areaData = []
+copyMap2Canvas()
+areaName = document.getElementById('area-name').value.toUpperCase()
+}
+
+function stopHandler(event) {
+//// output data
+
+console.log(areaName)
+// start of the string
+var coords = 'coords="'
+// adding pairs of points
+for (const point of areaData) {
+var line = `${point.x},${point.y},`
+// DeLIBERATE - it will have an extra trailing comma!
+coords += line
+}
+//replace final comma with doublequote
+coords = coords.substring(0, coords.length - 1) + '"'
+// display the data
+console.log(coords)
+
+////show area border on map
+
+// customize the drawing pen
+context.strokeStyle = 'red'
+
+// where to start
+var startX = areaData[0].x
+var startY = areaData[0].y
+context.beginPath()
+context.moveTo(startX, startY)
+
+// draw all lines
+for (const point of areaData) {
+context.lineTo(point.x, point.y)
+}
+
+// back to first position
+context.lineTo(startX, startY)
+
+// actually draw
+context.stroke()
+}
+
+function clickHandler(event) {
+// where was the click?
+var x = event.offsetX
+var y = event.offsetY
+console.log(x, y)
+
+// mark click with a circle
+const CIRCLE_RADIUS = 5
+context.strokeStyle = 'white'
+context.beginPath()
+context.arc(x, y, CIRCLE_RADIUS, 0, 2 * Math.PI)
+context.stroke()
+
+// save data
+areaData.push({ x, y })
+
+}
+
+
+
+window.onload = loadHandler
+
+</script>
+</body>
+
+</html>
