@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <script type="application/javascript">
+    function draw() {
+  var canvas = document.getElementById('canvas');
+  if (canvas.getContext) {
+    var ctx = canvas.getContext('2d');
+
+    ctx.fillRect(25, 25, 100, 100);
+    //ctx.clearRect(45, 45, 60, 60);
+    ctx.strokeRect(50, 50, 50, 50);
+  }
+}
+
+  </script>
+ </head>
+ <body onload="draw();">
+   <canvas id="canvas" width="150" height="150"></canvas>
+    <input type="button" value="IncreaseLength" id="inc" onclick="incLength()"/>
+    <input type="button" value="DecreaseLength" id="dec" onclick="decLength()"/>
+
+    <label id="length">9</label>
+	
+	<script type="text/javascript">
+	    var i = 9;
+
+    function incLength() {           
+		i++;       
+		document.getElementById('length').innerHTML=i;
+}
+
+    function decLength() {           
+		i--;       
+		document.getElementById('length').innerHTML=i;
+}
+</script>
+	<br><br>
+	
+	<input type="button" value="IncreaseHeight" id="inc" onclick="incHeight()"/>
+    <input type="button" value="DecreaseHeight" id="dec" onclick="decHeight()"/>
+
+    <label id="number">3</label>
+
+    <script type="text/javascript">
+
+    var j = 3;
+
+    function incHeight() {           
+		j++;       
+		document.getElementById('number').innerHTML=j;
+}
+
+    function decHeight() {           
+		j--;       
+		document.getElementById('number').innerHTML=j;
+}
+    </script>
+ </body>
+</html>

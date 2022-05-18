@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -15,7 +15,7 @@
 <body>
 
 <div>
-<img id="map_image" src="map.png" style="display: none;">
+<img id="map_image" src="p2p.png" alt="Point-to-point map for Lissa Campaign" style="display: none;">
 <canvas id="map_canvas"></canvas>
 </div>
 
@@ -30,6 +30,11 @@
 
 </div>
 <script>
+
+/* eslint quotes: ["error", "single"] */
+/* eslint semi: ["error", "never"] */
+/* eslint no-unused-vars: "error" */
+/*eslint-env browser*/
 
 var map = document.getElementById('map_canvas')
 var canvas = document.getElementById('map_canvas')
@@ -46,22 +51,24 @@ map.addEventListener('click', clickHandler, false)
 }
 
 
+//Puts the map image onto the canvas
 function copyMap2Canvas() {
-var imgwidth = sourceimage.width;
-var imgheight = sourceimage.height;
-canvas.width = imgwidth;
-canvas.height = imgheight;
-context.drawImage(sourceimage, 0, 0);
+var imgwidth = sourceimage.width
+var imgheight = sourceimage.height
+canvas.width = imgwidth
+canvas.height = imgheight
+context.drawImage(sourceimage, 0, 0)
 }
 
-function startHandler(event) {
+//Creates an array to put the points of the mouse clicks into. Runs copyMap2Canvas(). Collects the areaName and converts it to upper case.
+function startHandler() {
 console.log('start')
 areaData = []
 copyMap2Canvas()
 areaName = document.getElementById('area-name').value.toUpperCase()
 }
 
-function stopHandler(event) {
+function stopHandler() {
 //// output data
 
 console.log(areaName)
@@ -108,10 +115,8 @@ var y = event.offsetY
 console.log(x, y)
 
 // mark click with a circle
-const CIRCLE_RADIUS = 5
-context.strokeStyle = 'white'
-context.beginPath()
-context.arc(x, y, CIRCLE_RADIUS, 0, 2 * Math.PI)
+context.strokeStyle = 'red'
+context.strokeRect(x, y, 36, 32)
 context.stroke()
 
 // save data

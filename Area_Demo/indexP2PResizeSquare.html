@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -15,18 +15,35 @@
 <body>
 
 <div>
-<img id="map_image" src="map.png" style="display: none;">
+<img id="map_image" src="p2p.png" alt="Point-to-point map for Lissa Campaign" style="display: none;">
 <canvas id="map_canvas"></canvas>
 </div>
 
 <div>
+<p>
 <label for="area-name">Area id:</label>
 <input type="text" id="area-name" name="area-name">
 &nbsp;
 <input id="btn_start" type="button" value="Start">
 &nbsp;
 <input id="btn_stop" type="button" value="Stop">
+</p>
+
+<p>
+<label for="length-name">Change length:</label>
 &nbsp;
+<input id="btn_add_length" type="button" value="+">
+&nbsp;
+<input id="btn_minus_length" type="button" value="-">
+</p>
+
+<p>
+<label for="height-name">Change height:</label>
+&nbsp;
+<input id="btn_add_height" type="button" value="+">
+&nbsp;
+<input id="btn_minus_height" type="button" value="-">
+</p>
 
 </div>
 <script>
@@ -46,6 +63,7 @@ map.addEventListener('click', clickHandler, false)
 }
 
 
+//Puts the map image onto the canvas
 function copyMap2Canvas() {
 var imgwidth = sourceimage.width;
 var imgheight = sourceimage.height;
@@ -54,6 +72,7 @@ canvas.height = imgheight;
 context.drawImage(sourceimage, 0, 0);
 }
 
+//Creates an array to put the points of the mouse clicks into. Runs copyMap2Canvas(). Collects the areaName and converts it to upper case.
 function startHandler(event) {
 console.log('start')
 areaData = []
@@ -108,10 +127,12 @@ var y = event.offsetY
 console.log(x, y)
 
 // mark click with a circle
-const CIRCLE_RADIUS = 5
-context.strokeStyle = 'white'
-context.beginPath()
-context.arc(x, y, CIRCLE_RADIUS, 0, 2 * Math.PI)
+var rectangleLength = 36
+var rectangleHeight = 32
+context.strokeStyle = 'red'
+context.strokeRect(x, y, rectangleLength, rectangleHeight);
+//context.beginPath()
+//context.arc(x, y, CIRCLE_RADIUS, 0, 2 * Math.PI)
 context.stroke()
 
 // save data
