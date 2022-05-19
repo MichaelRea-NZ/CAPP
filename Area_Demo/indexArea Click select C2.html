@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Area Definition tool</title>
+</head>
+<body>
+
+<img id="map_image" src="map.png" usemap="#map_map" width="800" height="800" alt="Villers_Map">
+
+<map id="map_map" name="map_map">
+  <area shape="poly" coords="396,190,440,191,487,204,429,352,345,414,309,410,318,352,325,286,317,257,333,233,375,224" alt="Villers_Map" href="#" >
+</map>
+
+
+<script>
+
+var attachClick = document.getElementById('map_map')
+
+//attachs click to area
+function loadHandler() {
+attachClick.addEventListener('click', clickHandler, false)
+}
+
+// show there was a click.
+function clickHandler(event) {
+console.log("Clicked on")
+}
+
+window.onload = loadHandler
+
+</script>
+</body>
