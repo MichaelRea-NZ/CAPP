@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Area Selection and Highlight Demo v2</title>
+  <link rel="stylesheet" type="text/css" href="map.css" />
+</head>
+
+<body>
+  <!--
+<img id="map_image" src="map.png" usemap="#map_map" width="800" height="800" alt="Villers_Map">
+Image seems to be offset from the defined area
+-->
+
+  <canvas id="highlights_canvas"></canvas>
+
+  <img id="map_image" src="p2p.png" usemap="#map_map" alt="Map of Villers Bretonneux">
+
+  <map id="map_map" name="map_map">
+	<!-- rects -->
+    <area  alt="ancona" title="ancona" href="#" coords="74,194,108,225" shape="rect">
+    <area  alt="naples" title="naples" href="#" coords="49,389,85,420" shape="rect">
+    <area  alt="bari" title="bari" href="#" coords="196,388,231,419" shape="rect">
+    <area  alt="taranto" title="taranto" href="#" coords="232,471,266,500" shape="rect">
+	<!-- polys -->
+	<area  alt="venice" title="venice" href="#" coords="69,36,44,77,93,76" shape="poly">
+    <area  alt="trieste" title="trieste" href="#" coords="130,32,106,73,154,72" shape="poly">
+    <area  alt="pola" title="pola" href="#" coords="150,97,174,136,126,137" shape="poly">
+    <area  alt="cattaro" title="cattaro" href="#" coords="368,361,342,401,393,403" shape="poly">
+    <area  alt="lissa" title="lissa" href="#" coords="219,255,196,269,205,296,232,293,240,269" shape="poly">
+    <area  alt="klek" title="klek" href="#" coords="318,322,339,320,350,340,340,362,317,361,306,340" shape="poly">
+	<!-- circles -->
+	<area  alt="ship1" title="ship1" href="#" coords="88,134,18" shape="circle">
+    <area  alt="ship2" title="ship2" href="#" coords="147,176,19" shape="circle">
+    <area  alt="ship3" title="ship3" href="#" coords="179,235,18" shape="circle">
+    <area  alt="ship4" title="ship4" href="#" coords="130,261,20" shape="circle">
+    <area  alt="ship5" title="ship5" href="#" coords="170,307,18" shape="circle">
+    <area  alt="ship6" title="ship6" href="#" coords="216,338,18" shape="circle">
+    <area  alt="ship7" title="ship7" href="#" coords="270,338,19" shape="circle">
+    <area  alt="ship8" title="ship8" href="#" coords="299,395,20" shape="circle">
+    <area  alt="ship9" title="ship9" href="#" coords="325,450,18" shape="circle">
+    <area  alt="ship10" title="ship10" href="#" coords="326,516,18" shape="circle">
+    <area  alt="ship11" title="ship11" href="#" coords="251,558,18" shape="circle">
+    <area  alt="ship12" title="ship12" href="#" coords="198,563,20" shape="circle">
+    <area  alt="ship13" title="ship13" href="#" coords="151,563,18" shape="circle">
+    <area  alt="ship14" title="ship14" href="#" coords="106,561,18" shape="circle">
+    <area  alt="ship15" title="ship15" href="#" coords="68,535,18" shape="circle">
+    <area  alt="ship16" title="ship16" href="#" coords="68,490,19" shape="circle">
+    <area  alt="ship17" title="ship17" href="#" coords="68,447,18" shape="circle">
+
+  </map>
+
+
+
+  <script>
+
+
+    /* eslint quotes: ["error", "single"] */
+    /* eslint semi: ["error", "never"] */
+    /* eslint no-unused-vars: "error" */
+    /* globals document console window */
+
+    const PALE_ORANGE = 'rgba(204, 51, 255, 0.3)'
+    //const LIGHT_GREY = "rgb(0, 0, 0, 0.4)"
+    //const LIGHT_PURPLE = "rgba(0, 0, 255, 0.25)"
+
+
+    //var selectedArea = undefined
+
+    var mapMap = document.getElementById('map_map')
+    var highlightsCanvas = document.getElementById('highlights_canvas')
+    var highlightsContext = highlightsCanvas.getContext('2d')
+
+    /* !! fixed BUG.. 
+    // without the following the canvas will capture the mouse events from the map of areas
+    // SOLUTION
+    // put a tranparent canvas on top of image and disable mouse stuff
+    // from https://stackoverflow.com/questions/27587532/image-map-and-canvas
+    // aslo see https://www.w3schools.com/cssref/pr_pos_z-index.asp
+        // the following is in map.css
+        #highlights_canvas  {
+          pointer-events: none;       
+          position:absolute;
+          z-index: 2;
+        }
+    */
+    highlightsCanvas.width = document.getElementById('map_image').width
+    highlightsCanvas.height = document.getElementById('map_image').height
+
+    function highlightArea(coords, shape, highlightColor = PALE_ORANGE) {
+
+     
+        if(shape == 'rect'){
+            const borderPointsArray = coords.split(',').map(element => { return Number(element) })  
+            const rectWidth = 36
+            const rectHight = 32
+            highlightsContext.fillStyle = highlightColor
+            highlightsContext.lineWidth = 0.1
+            highlightsContext.beginPath()
+            highlightsContext.rect(borderPointsArray[0], borderPointsArray[1], rectWidth, rectHight)  	  
+            highlightsContext.fill()
+            highlightsContext.stroke()
+        }
+
+        if(shape == 'poly'){
+            const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+            // get ready to draw
+            highlightsContext.beginPath()
+            highlightsContext.lineWidth = 0.1
+
+            // starting point
+            highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+            // for all the border points
+            for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+			// draw a line to each point
+			    highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+            }
+            // final line goes back to first point
+            highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+            // finish up the drawing
+            highlightsContext.fillStyle = highlightColor
+            highlightsContext.closePath()
+            highlightsContext.fill()
+            highlightsContext.stroke()
+        }
+ 
+        if(shape == 'circle'){
+            const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+            highlightsContext.fillStyle = highlightColor
+            highlightsContext.lineWidth = 0.1	  
+            highlightsContext.beginPath()
+            highlightsContext.arc(borderPointsArray[0], borderPointsArray[1], borderPointsArray[2], 0, 2 * Math.PI)
+            highlightsContext.fill()
+            highlightsContext.stroke()
+        }
+   
+    }
+
+    
+    function clearHighlights() {
+        highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+    }
+
+
+
+    function areaClickHandler(event) {
+        console.log(event.target.id, event.target.coords, event.target.shape)
+        clearHighlights()
+        highlightArea(event.target.coords, event.target.shape)
+        //selectedArea = event.target.id
+    }
+
+    
+    function loadHandler() {
+        mapMap.addEventListener('click', areaClickHandler, false)
+    }
+
+    window.onload = loadHandler
+
+  </script>
+</body>
