@@ -17,19 +17,20 @@ p {
     user-select: none
 }
 
-/*
-#map-image, #highlights_canvas {
-    margin-top: 30px;
-    position: absolute;
-    top: 30px;
-    left: 30px
-}
-*/
 #highlights_canvas
 {
     pointer-events: none;       
     /* make the canvas transparent to the mouse - 
-    needed since canvas is position infront of image */
+    needed since canvas is position in front of image */
     position:absolute;
     z-index: 2;
+}
+
+#units_canvas
+{
+    pointer-events: none;       
+    /* make the canvas transparent to the mouse - 
+    needed since canvas is position in front of image */
+    position:absolute;
+    z-index: 3;
 }
