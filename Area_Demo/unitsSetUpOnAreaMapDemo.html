@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Area Selection and Highlight Demo v2</title>
+  <link rel="stylesheet" type="text/css" href="map.css" />
+</head>
+
+<body>
+  <!--
+<img id="map_image" src="map.png" usemap="#map_map" width="800" height="800" alt="Villers_Map">
+Image seems to be offset from the defined area
+-->
+
+  <canvas id="highlights_canvas"></canvas>
+  <canvas id="units_canvas"></canvas>
+  <canvas id="german_canvas"></canvas>
+
+  <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">
+  <img id="units_image" src="AlliedCounters.png" style="display: none;">
+  <img id="german_image" src="GermanCounters.png" style="display: none;">
+
+  <map id="map_map" name="map_map">
+    <area shape="poly" title="Rue de Perone" id="C2"
+      coords="396,190,440,191,487,204,429,352,345,414,309,410,318,352,325,286,317,257,333,233,375,224" href="#">
+    <area shape="poly" title="C3" id="C3"
+      coords="491,206,510,211,527,215,544,226,531,250,526,268,522,286,521,298,522,315,528,332,535,351,541,372,544,395,543,418,542,438,530,452,440,433,339,416,363,404,387,389,410,371,428,352,445,324,457,295,466,268,479,234"
+      href="#">
+
+  </map>
+
+
+
+  <script>
+
+    /* eslint quotes: ["error", "single"] */
+    /* eslint semi: ["error", "never"] */
+    /* eslint no-unused-vars: "error" */
+    /* globals document console window */
+    /* exported PALE_ORANGE LIGHT_GREY LIGHT_PURPLE highlightArea selectedArea */
+
+
+    var selectedArea = undefined
+
+   /* const PALE_ORANGE = 'rgba(255, 165, 0, 0.3)'
+    const LIGHT_GREY = 'rgb(0, 0, 0, 0.4)'
+    const LIGHT_PURPLE = 'rgba(0, 0, 255, 0.25)'*/
+
+    var mapMap = document.getElementById('map_map')
+    var highlightsCanvas = document.getElementById('highlights_canvas')
+    var highlightsContext = highlightsCanvas.getContext('2d')
+
+    
+    const UNIT_DISPLAY_WIDTH = 50
+    const UNIT_DISPLAY_HEIGHT = 50
+    const UNIT_IMAGE_WIDTH = 100
+    const UNIT_IMAGE_HEIGHT = 100
+    
+	var germanImage = document.getElementById('german_image')
+    var unitsImage = document.getElementById('units_image')
+    var unitsCanvas = document.getElementById('units_canvas')
+    var unitsContext = unitsCanvas.getContext('2d')
+
+    unitsCanvas.width = document.getElementById('map_image').width
+    unitsCanvas.height = document.getElementById('map_image').height
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	var germanStartPositions = [{mapX:617, mapY: 204, unitIndex:1},
+								{mapX:489, mapY: 537, unitIndex:7},
+                                {mapX:630, mapY: 566, unitIndex:10}
+								]
+	
+    germanStartPositions.forEach((german)=>{
+	return displayGerman()
+	})
+
+    
+
+    
+    function displayAllied(mapX, mapY, unitIndex) {
+      unitsContext.drawImage(unitsImage,
+        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+        mapX, mapY, // draw position
+        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+    }
+	
+    function displayGerman(mapX, mapY, unitIndex) {
+      unitsContext.drawImage(germanImage,
+        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+        mapX, mapY, // draw position
+        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+    }	
+
+    function clearUnit(mapX, mapY) {
+      unitsContext.clearRect(mapX, mapY, UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT);
+    }
+
+    function areaClickHandler(event) {
+      // NOTE: the same handler can be used for many areas
+      // event.target is the area of the map that was clicked
+      console.log(event.target.id, event.target.coords)
+      // NOTE: without this clicking again shades an area deeper
+      // and previous clicked areas remain shaded
+      //clearHighlights()
+      // just use the area coords to draw the highlight
+      // no 2nd parameter so uses default pale orange colour
+      //highlightArea(event.target.coords)
+      // a global variable is used to track the just clicked on  area
+      selectedArea = event.target.id
+    }
+
+    //attachs click to map of ALL areas
+    function loadHandler() {
+      mapMap.addEventListener('click', areaClickHandler, false)
+    }
+
+    window.onload = loadHandler
+
+  </script>
+</body>
