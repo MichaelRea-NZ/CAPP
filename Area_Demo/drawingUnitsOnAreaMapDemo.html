@@ -79,7 +79,7 @@ Image seems to be offset from the defined area
     unitsCanvas.height = document.getElementById('map_image').height
 
 
-   /* function highlightArea(coords, highlightColor = PALE_ORANGE) {
+    function highlightArea(coords, highlightColor = PALE_ORANGE) {
 
       const borderPointsArray = coords.split(',').map(element => { return Number(element) })
 
@@ -108,7 +108,7 @@ Image seems to be offset from the defined area
     // see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
     function clearHighlights() {
       highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
-    }*/
+    }
 
     
     function drawUnit(mapX, mapY, unitIndex) {

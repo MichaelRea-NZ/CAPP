@@ -14,15 +14,14 @@ Image seems to be offset from the defined area
 
   <canvas id="highlights_canvas"></canvas>
   <canvas id="units_canvas"></canvas>
-  
-  <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">    
-  <img id="allied_image" src="AlliedCounters.png" alt="Allied Counters" style="display: none;">
-  <img id="german_image" src="GermanCounters.png" alt="German Counters" style="display: none;">
+
+  <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">
+  <img id="units_image" src="AlliedCounters.png" style="display: none;">
 
   <map id="map_map" name="map_map">
-    <area shape="poly" title="Rue de Perone" id="C2" alt="C2"
+    <area shape="poly" title="Rue de Perone" id="C2"
       coords="396,190,440,191,487,204,429,352,345,414,309,410,318,352,325,286,317,257,333,233,375,224" href="#">
-    <area shape="poly" title="C3" id="C3" alt="C3
+    <area shape="poly" title="C3" id="C3"
       coords="491,206,510,211,527,215,544,226,531,250,526,268,522,286,521,298,522,315,528,332,535,351,541,372,544,395,543,418,542,438,530,452,440,433,339,416,363,404,387,389,410,371,428,352,445,324,457,295,466,268,479,234"
       href="#">
 
@@ -47,7 +46,7 @@ Image seems to be offset from the defined area
 
     var mapMap = document.getElementById('map_map')
     var highlightsCanvas = document.getElementById('highlights_canvas')
-    //var highlightsContext = highlightsCanvas.getContext('2d')
+    var highlightsContext = highlightsCanvas.getContext('2d')
 
     
     const UNIT_DISPLAY_WIDTH = 50
@@ -55,61 +54,73 @@ Image seems to be offset from the defined area
     const UNIT_IMAGE_WIDTH = 100
     const UNIT_IMAGE_HEIGHT = 100
     
-	var germanImage = document.getElementById('german_image')
-    var alliedImage = document.getElementById('allied_image')
+    var unitsImage = document.getElementById('units_image')
     var unitsCanvas = document.getElementById('units_canvas')
     var unitsContext = unitsCanvas.getContext('2d')
 
+    /* !! fixed BUG.. 
+    // without the following the canvas will capture the mouse events from the map of areas
+    // SOLUTION
+    // put a tranparent canvas on top of image and disable mouse stuff
+    // from https://stackoverflow.com/questions/27587532/image-map-and-canvas
+    // aslo see https://www.w3schools.com/cssref/pr_pos_z-index.asp
+        // the following is in map.css
+        #highlights_canvas  {
+          pointer-events: none;       
+          position:absolute;
+          z-index: 2;
+        }
+    */
+    highlightsCanvas.width = document.getElementById('map_image').width
+    highlightsCanvas.height = document.getElementById('map_image').height
+
     unitsCanvas.width = document.getElementById('map_image').width
     unitsCanvas.height = document.getElementById('map_image').height
-	highlightsCanvas.width = document.getElementById('map_image').width
-    highlightsCanvas.height = document.getElementById('map_image').height
-	
-		
-	
-	/*var germanStartPositions = [{mapX:617, mapY: 204, unitIndex:1},
-								{mapX:489, mapY: 537, unitIndex:7},
-                                {mapX:630, mapY: 566, unitIndex:10}
-								]
-	
-	
-	    function displayGerman(mapX, mapY, unitIndex) {
-		
-		germanStartPositions.forEach((german)=>{
-		
-            unitsContext.drawImage(germanImage,
-            UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
-            UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
-            mapX, mapY, // draw position
-            UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) 
-	
-	
-	
-   
-	})*/
+
+
+    function highlightArea(coords, highlightColor = PALE_ORANGE) {
+
+      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+      // get ready to draw
+      highlightsContext.beginPath()
+      highlightsContext.lineWidth = 0.1
+
+      // starting point
+      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+      // for all the border points
+      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+        // draw a line to each point
+        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+      }
+      // final line goes back to first point
+      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+      //// finish up the drawing
+      highlightsContext.fillStyle = highlightColor
+      highlightsContext.closePath()
+      highlightsContext.fill()
+      highlightsContext.stroke()
+    }
+
+    // see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
+    function clearHighlights() {
+      highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+    }
 
     
-
-    
-    function displayAllied(mapX, mapY, unitIndex) {
-      unitsContext.drawImage(alliedImage,
+    function drawUnit(mapX, mapY, unitIndex) {
+      unitsContext.drawImage(unitsImage,
         UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
         UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
         mapX, mapY, // draw position
         UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
     }
-	
-    function displayGerman(mapX, mapY, unitIndex) {
-      unitsContext.drawImage(germanImage,
-        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
-        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
-        mapX, mapY, // draw position
-        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
-    }	
 
-    //function clearUnit(mapX, mapY) {
-      //unitsContext.clearRect(mapX, mapY, UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT);
-    //}
+    function clearUnit(mapX, mapY) {
+      unitsContext.clearRect(mapX, mapY, UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT);
+    }
 
     function areaClickHandler(event) {
       // NOTE: the same handler can be used for many areas
@@ -117,10 +128,10 @@ Image seems to be offset from the defined area
       console.log(event.target.id, event.target.coords)
       // NOTE: without this clicking again shades an area deeper
       // and previous clicked areas remain shaded
-      //clearHighlights()
+      clearHighlights()
       // just use the area coords to draw the highlight
       // no 2nd parameter so uses default pale orange colour
-      //highlightArea(event.target.coords)
+      highlightArea(event.target.coords)
       // a global variable is used to track the just clicked on  area
       selectedArea = event.target.id
     }
@@ -128,27 +139,6 @@ Image seems to be offset from the defined area
     //attachs click to map of ALL areas
     function loadHandler() {
       mapMap.addEventListener('click', areaClickHandler, false)
-      displayAllied(60,124,4)
-      displayAllied(50, 265, 7)
-      displayAllied(120, 275, 8)
-      displayAllied(245, 310, 2)
-      displayAllied(265,525,5)
-      displayAllied(210,620,6)
-      displayAllied(475, 110, 0)
-      displayAllied(460, 290, 3 )
-      displayAllied(345, 435, 1 )
-  
-      displayGerman(590, 165, 8)
-      displayGerman(550, 300, 6)
-      displayGerman(560, 350, 7)
-      displayGerman(547, 400, 10)
-      displayGerman(515, 485, 5)
-      displayGerman(475, 510, 1)
-      displayGerman(425, 535, 0)
-      displayGerman(325, 560, 3)
-      displayGerman(335, 595, 4)
-      displayGerman(345, 635, 2)
-
     }
 
     window.onload = loadHandler

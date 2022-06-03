@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Area Selection and Highlight Demo v2</title>
+  <title>Place Flags on Areas Demo v2</title>
   <link rel="stylesheet" type="text/css" href="p2pmap.css" />
 </head>
 
@@ -13,8 +13,11 @@ Image seems to be offset from the defined area
 -->
 
   <canvas id="highlights_canvas"></canvas>
-
-  <img id="map_image" src="p2p.png" alt="Point-to-point map for Lissa Campaign" style="display: none;">
+  <canvas id="units_canvas"></canvas>
+  
+  <img id="map_image" src="p2p.png" usemap="#map_map" alt="Point-to-point map for Lissa Campaign">
+  <img id="austrian_image" src="AustrianFlags.png" alt="Austrian Flags" style="display: none;">
+  <img id="italian_image" src="ItalyFlags.png" alt="Italian Flags" style="display: none;">
 
   <map id="map_map" name="map_map">
 	<!-- rects -->
@@ -84,6 +87,19 @@ Image seems to be offset from the defined area
           z-index: 2;
         }
     */
+	
+    const UNIT_DISPLAY_WIDTH = 100
+    const UNIT_DISPLAY_HEIGHT = 100
+    const UNIT_IMAGE_WIDTH = 100
+    const UNIT_IMAGE_HEIGHT = 100
+	
+	var austrianImage = document.getElementById('austrian_image')
+	var italianImage = document.getElementById('italian_image')
+	var unitsCanvas = document.getElementById('units_canvas')
+	var unitsContext = unitsCanvas.getContext('2d')
+	
+	unitsCanvas.width = document.getElementById('map_image').width
+    unitsCanvas.height = document.getElementById('map_image').height
     highlightsCanvas.width = document.getElementById('map_image').width
     highlightsCanvas.height = document.getElementById('map_image').height
 
@@ -115,7 +131,7 @@ Image seems to be offset from the defined area
             // for all the border points
             for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
 			// draw a line to each point
-			    highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+                highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
             }
             // final line goes back to first point
             highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
@@ -145,6 +161,23 @@ Image seems to be offset from the defined area
     }
 
 
+    function displayAustrian(mapX, mapY, unitIndex) {
+      unitsContext.drawImage(austrianImage,
+        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+        mapX, mapY, // draw position
+        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+    }
+	
+    function displayItalian(mapX, mapY, unitIndex) {
+      unitsContext.drawImage(italianImage,
+        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+        mapX, mapY, // draw position
+        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+    }
+
+
 
     function areaClickHandler(event) {
         console.log(event.target.id, event.target.coords, event.target.shape)
@@ -156,6 +189,13 @@ Image seems to be offset from the defined area
     
     function loadHandler() {
         mapMap.addEventListener('click', areaClickHandler, false)
+		displayAustrian(160,90,5)
+		displayAustrian(240,240,0)
+		displayAustrian(140,30,3)
+		
+		displayItalian(130,240,2)
+		displayItalian(164,460,0)
+		displayItalian(5,380,6)
     }
 
     window.onload = loadHandler
