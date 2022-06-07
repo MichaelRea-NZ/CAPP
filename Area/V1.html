@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>V2</title>
+  
+</head>
+
+<body>
+<script>
+"use strict";
+class Unit {
+    constructor(id, name, army, training, branch, startTurn, startPosition) {
+        this._id = id;
+        this._name = name;
+        this._army = army;
+        this._training = training;
+        this._branch = branch;
+        this._startTurn = startTurn;
+        this._startPosition = startPosition;
+        this._currentPosition = startPosition;
+    }
+    get name() {
+        return `${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`;
+    }
+}
+class Area {
+    constructor(id, terrain, canSupplyAllied, canSupplyGerman, control, allNeighbours, 
+    // center : Point,
+    vp = 0, name = '') {
+        this._allNeighbours = [];
+        this._allUnits = [];
+        this._id = id;
+        this._terrain = terrain;
+        this._canSupplyAllies = canSupplyAllied;
+        this._canSupplyGerman = canSupplyGerman;
+        this._control = control;
+        if (control == 'German') {
+            this._isGerman = true;
+        }
+        else {
+            this._isAllied = true;
+        }
+        this._victoryPoints = vp;
+        this._name = name;
+        this._allNeighbours = allNeighbours;
+        // this._center = center
+    }
+    addUnit(unit) {
+        this._allUnits.push(unit);
+    }
+    get name() {
+        return 'like page 15';
+    }
+}
+class Game {
+    constructor() {
+        this._allUnits = [];
+        this._allAreas = [];
+    }
+    addUnit(id, name, army, training, branch, startTurn, startPosition) {
+        let newUnit = new Unit(id, name, army, training, branch, startTurn, startPosition);
+        this._allUnits.push(newUnit);
+    }
+    reportUnits() {
+        return 'not implemented make look line page 7 ';
+    }
+    addArea(id, terrain, canSupplyAllied, canSupplyGerman, control, allNeighbours, 
+    // center : Point,
+    vp = 0, name = '') {
+        let newArea = new Area(id, terrain, canSupplyAllied, canSupplyGerman, control, allNeighbours, vp, name = '');
+        this._allAreas.push(newArea);
+    }
+    reportAreas() {
+        return 'not implemented - like page 15';
+    }
+	addNeighbours(targetArea, allNeighbours){
+		
+	}
+}
+
+let game = new Game()
+game.addArea('A1', 'open', true, false, 'Allied')
+// game.addNeighbours('A1', ['B1', 'B2', 'A2'])
+game.addUnit(4, 'No 2 - A Coy Grove', 'Allied', '', 'Mark IV tanks', 1, 'A1')
+
+console.log(game.reportAreas())
+
+console.log(game.reportUnits())
+</script>
+
+</body>
