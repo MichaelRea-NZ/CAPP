@@ -21,13 +21,23 @@ class Unit {
         this._currentPosition = startPosition;
     }
     get name() {
-        return `${this._id} ${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`;
+        let result = `${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`;
+		if(this._startTurn !== 1){
+			result += ` on turn ${this._startTurn}`
+		}
+		return result
     }
+	get army(){
+		if(this._army == 'Allied'){
+			return true
+		}
+		else{
+			return false
+		}
+	}
 }
 class Area {
-    constructor(id, terrain, canSupplyAllied, canSupplyGerman, control, allNeighbours, 
-    // center : Point,
-    vp = 0, name = '') {
+    constructor(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
         this._allNeighbours = [];
         this._allUnits = [];
         this._id = id;
@@ -42,15 +52,20 @@ class Area {
             this._isAllied = true;
         }
         this._victoryPoints = vp;
-        this._name = name;
-        this._allNeighbours = allNeighbours;
-        // this._center = center
+        this._name = fullName;
+        
+        this._centerX = centerX
+        this._centerY = centerY
     }
     addUnit(unit) {
         this._allUnits.push(unit);
     }
-    get name() {
-        return 'like page 15';
+    get areaName() {
+        let result = `${this._name}  ${this._id}  ${this._victoryPoints}`;
+        return result
+    }
+    addNeighbour (aNeighbour) {
+      this._allNeighbours.push(aNeighbour)
     }
 }
 class Game {
@@ -59,8 +74,12 @@ class Game {
         this._allAreas = [];
     }
     addUnit(id, name, army, training, branch, startTurn, startPosition) {
-        let newUnit = new Unit(id, name, army, training, branch, startTurn, startPosition);
-        this._allUnits.push(newUnit);
+      let newUnit = new Unit(id, name, army, training, branch, startTurn, startPosition);
+      this._allUnits.push(newUnit);
+      let area = this._allAreas.find(area => area._id === startPosition)
+      if(area){			
+        area.addUnit(newUnit)
+      }
     }
 /*     reportUnits() {
          this._allUnits.forEach((_name, _training, _branch, _currentPosition) => {
@@ -68,96 +87,137 @@ class Game {
 		
 		});
     } */
-	reportUnits() {
+/* 	reportUnits() {
 		let result = ''
 			for (let unit of game._allUnits) {
 			result += unit.name +    '\n'
 		}
 		return result
-	}
+	} */
 
-    /* reportUnits() {
-		if(this._allUnits.army =='Allied'){
-			let result = ''
-				for (let unit of game._allUnits) {
-				result += unit.name +    '\n'
+    reportAlliedUnits() {		
+		let result = ''
+			for (let unit of game._allUnits) {
+				if(unit.army == true){
+			result += unit.name +    '\n'
 			}
-			return result
 		}
-	} 	 */
+		return result		
+	} 	
 	
-    addArea(id, terrain, canSupplyAllied, canSupplyGerman, control, allNeighbours, 
-    // center : Point,
-    vp = 0, name = '') {
-        let newArea = new Area(id, terrain, canSupplyAllied, canSupplyGerman, control, allNeighbours, vp, name = '');
+	reportGermanUnits() {		
+     let result = ''
+			for (let unit of game._allUnits) {
+				if(unit.army == false){
+			result += unit.name +    '\n'
+			}
+		}
+		return result		
+	} 
+	
+    addArea(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
+        let newArea = new Area(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp, fullName);
         this._allAreas.push(newArea);
     }
     reportAreas() {
-        return 'not implemented - like page 15';
+      let result = ''
+        for (let areas of game._allAreas) {
+        result += areas.areaName +    '\n'
+		}
+		return result
     }
-	addNeighbours(targetArea, allNeighbours){
-		
-	}
+	addNeighbours(targetAreaId, allNeighbourIds){
+		const targetArea = this._allAreas.find(area => area._id === targetAreaId )
+		for (let neighbourAreaId of allNeighbourIds) {
+			const neighbourArea = this._allAreas.find(area => area._id === neighbourAreaId)
+			targetArea.addNeighbour(neighbourArea)
+		}
+  }
+	
 }
 
 let game = new Game()
 
-game.addArea('A1', 'open', true, false, 'Allied')
-game.addArea('A2', 'woods', true, false, 'Allied')
-game.addArea('A3', 'open', true, false, 'Allied')
-game.addArea('B1', 'woods', true, false, 'Allied')
-game.addArea('B2', 'city', true, false, 'Allied')
-game.addArea('B3', 'open', true, false, 'Allied')
-game.addArea('B4', 'trench', true, false, 'Allied')
-game.addArea('B5', 'trench', true, false, 'Allied')
-game.addArea('C1', 'open', true, false, 'Allied')
-game.addArea('C2', 'open', true, false, 'Allied')
-game.addArea('C3', 'trench', true, false, 'Allied')
-game.addArea('C4', 'trench', true, false, 'Allied')
-game.addArea('C5', 'trench', false,true, 'German')
-game.addArea('D1', 'trench', false,true, 'German')
-game.addArea('D2', 'trench', false,true, 'German')
-game.addArea('D3', 'trench', false,true, 'German')
-game.addArea('D4', 'woods', false,true, 'German')
-game.addArea('E1', 'open', false,true, 'German')
-game.addArea('E2', 'open', false,true, 'German')
-game.addArea('E3', 'open', false,true, 'German')
+game.addArea('A1', 'open', true, false, 'Allied', 60, 124)
+game.addArea('A2', 'woods', true, false, 'Allied', 50, 300, 80, 'D’Arquenne Wood')
+game.addArea('A3', 'open', true, false, 'Allied', 50, 520, 60, 'Cachy')
+game.addArea('B1', 'woods', true, false, 'Allied', 220, 111, 80, 'Fouilloy/Hill 104')
+game.addArea('B2', 'city', true, false, 'Allied', 230, 320, 60, 'Villers-Bretonneux' )
+game.addArea('B3', 'open', true, false, 'Allied', 200, 460, 20)
+game.addArea('B4', 'trench', true, false, 'Allied', 280, 500)
+game.addArea('B5', 'trench', true, false, 'Allied', 200, 650)
+game.addArea('C1', 'open', true, false, 'Allied', 440, 110)
+game.addArea('C2', 'open', true, false, 'Allied', 370, 230, 20, 'Rue de Péronnes')
+game.addArea('C3', 'trench', true, false, 'Allied', 470, 280)
+game.addArea('C4', 'trench', true, false, 'Allied', 360, 380, 20, 'Monument Wood')
+game.addArea('C5', 'trench', false,true, 'German', 340,620)
+game.addArea('D1', 'trench', false,true, 'German', 580, 270)
+game.addArea('D2', 'trench', false,true, 'German', 555, 360)
+game.addArea('D3', 'trench', false,true, 'German', 490, 500)
+game.addArea('D4', 'woods', false,true, 'German', 450, 650)
+game.addArea('E1', 'open', false,true, 'German', 680, 70)
+game.addArea('E2', 'open', false,true, 'German', 670, 270)
+game.addArea('E3', 'open', false,true, 'German', 570, 550) 
 
-// game.addNeighbours('A1', ['B1', 'B2', 'A2'])
+game.addNeighbours('A1', ['B1', 'A2'])
+game.addNeighbours('A2', ['A1', 'B1', 'B2', 'B3', 'A3'])
+game.addNeighbours('A3', ['A2', 'B3', 'B5'])
+game.addNeighbours('B1', ['A1', 'A2', 'B4', 'C2', 'C1'])
+game.addNeighbours('B2', ['B1', 'C2', 'C4', 'B3', 'A2'])
+game.addNeighbours('B3', ['B2', 'C4', 'B4', 'B5', 'A3', 'A2'])
+game.addNeighbours('B4', ['B3', 'C4', 'D3', 'C5', 'B5'])
+game.addNeighbours('B5', ['A3', 'B3', 'B4', 'C5'])
+game.addNeighbours('C1', ['D1', 'C3', 'C2', 'B1'])
+game.addNeighbours('C2', ['B1', 'C1', 'C3', 'C4', 'B2'])
+game.addNeighbours('C3', ['C1', 'D1', 'D2', 'C4', 'C2'])
+game.addNeighbours('C4', ['B2', 'C2', 'C3', 'D2', 'D3', 'B4', 'B3'])
+game.addNeighbours('C5', ['B4', 'D3', 'D4', 'B5'])
+game.addNeighbours('D1', ['E1', 'E2', 'D2', 'C3', 'C1'])
+game.addNeighbours('D2', ['D1', 'E2', 'E3', 'D3', 'C4', 'C3'])
+game.addNeighbours('D3', ['C4', 'D2', 'E3', 'D4', 'C5'])
+game.addNeighbours('D4', ['C5', 'D3', 'E3'])
+game.addNeighbours('E1', ['D1', 'E2'])
+game.addNeighbours('E2', ['D1', 'D2', 'E3'])
+game.addNeighbours('E3', ['D4', 'D3', 'D2', 'E2'])
 
 //Allied units
-game.addUnit(0, '14 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, 'C1')
-game.addUnit(1, '23 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C4')
-game.addUnit(2, '24 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B2')
-game.addUnit(3, '25 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C3')
 game.addUnit(4, 'No 2 - A Coy Grove', 'Allied', 'Veteran', 'Mark IV tanks', 1, 'A1')
-game.addUnit(5, '58 Bn MGC ', 'Allied', 'Trained', 'HMG', 1, 'B4')
-game.addUnit(6, '173 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B5')
 game.addUnit(7, 'No 1 – A Coy Mitchell ', 'Allied', 'Veteran', 'Mark IV tanks', 1, 'A2')
 game.addUnit(8, 'X Coy Price', 'Allied', 'Trained', 'Whippet tanks', 1, 'A2')
-game.addUnit(9, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, '')
-game.addUnit(10, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, '')
-game.addUnit(11, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, '')
-game.addUnit(12, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, '')
+game.addUnit(2, '24 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B2')
+game.addUnit(5, '58 Bn MGC ', 'Allied', 'Trained', 'HMG', 1, 'B4')
+game.addUnit(6, '173 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B5')
+game.addUnit(0, '14 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, 'C1')
+game.addUnit(3, '25 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C3')
+game.addUnit(1, '23 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C4')
+game.addUnit(9, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
+game.addUnit(10, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
+game.addUnit(11, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
+game.addUnit(12, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
 
 //German units
-game.addUnit(13, 'G Gr. 5', 'German', 'Fearless', 'Stoss', 1, 'D3')
-game.addUnit(14, '93 RIR', 'German', 'Veteran', 'Infantry', 1, 'D3')
 game.addUnit(15, 'Group II Uihlein', 'German', 'Trained', 'A7V tanks', 1, 'C5')
 game.addUnit(16, '257', 'German', 'Fearless', 'Stoss', 1, 'C5')
 game.addUnit(17, '419 RIR', 'German', 'Trained', 'Infantry', 1, 'C5')
-game.addUnit(18, 'Group III Steinhardt', 'German', 'Trained', 'A7V tanks', 1, 'D3')
-game.addUnit(19, '48 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
-game.addUnit(20, '207 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
-game.addUnit(21, 'MG Abt 228', 'German', 'Veteran', 'HMG', 1, '')
 game.addUnit(22, '478 RIR', 'German', 'Veteran', 'Infantry', 1, 'D1')
 game.addUnit(23, 'Group I Skopnik', 'German', 'Veteran', 'A7V tanks', 1, 'D2')
-game.addUnit(24, 'MG Abt 4G', 'German', 'Veteran', 'HMG', 1, '')
+game.addUnit(19, '48 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
+game.addUnit(20, '207 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
+game.addUnit(13, 'G Gr. 5', 'German', 'Fearless', 'Stoss', 1, 'D3')
+game.addUnit(14, '93 RIR', 'German', 'Veteran', 'Infantry', 1, 'D3')
+game.addUnit(18, 'Group III Steinhardt', 'German', 'Trained', 'A7V tanks', 1, 'D3')
+game.addUnit(21, 'MG Abt 228', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
+game.addUnit(24, 'MG Abt 4G', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
 
 
-console.log(game.reportAreas())
 
-console.log(game.reportUnits())
+console.table(game._allAreas, [game._allAreas._name, game._allAreas._id])
+
+console.t(game.reportAreas())
+
+console.log(game.reportAlliedUnits())
+
+console.log(game.reportGermanUnits())
 </script>
 
 </body>
