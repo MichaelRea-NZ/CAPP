@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<script>
+
+class Clock{
+  constructor(currentTurn, totalTurn){
+  this._currentTurn = currentTurn
+  this._totalTurn = totalTurn
+  }
+  
+
+  
+  
+  get turn(){
+    return this._currentTurn 
+    console.log(this._currentTurn)
+  }
+  
+  get date(){
+     let result = allDates[this._currentTurn + 1]
+    return result
+    console.log(result)
+  }
+  
+  get specialRules(){
+    let result = allRules[this._currentTurn + 1]
+    return result
+    console.log(result)
+  }
+  
+  get description(){
+    let result = allDiscriptions[this._currentTurn + 1]
+    return result
+    console.log(result)
+  }
+}
+
+let clock = new Clock
+</script>
+
+</body>
+</html>
+
