@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+
+<script>
+
+class Clock {
+constructor() {
+this._currentTurn = 1
+this._totalTurn = 4
+this._allDates = [
+'Turn One - 24 April, Morning',
+'Turn two - 24 April, Day',
+'Turn Three - 24 April, Counter-Attack',
+'Turn four - 26-27 April, Consolidation'
+]
+this._allRules = [
+'Number of battles: 4, see below\n'
++ 'Initiative bonus: N/A, see below\nFirst turn\n]'
++ 'The German player is automatically the attacker in all four battles '
++ ' and the entire turn is under Gas attack effects\n'
++ 'The first attacks must be made as follows:\n'
++ 'D-2 attacks C-3\n'
++ 'D-3 attacks C-4\n'
++ 'C-5 attacks B-4\n\n'
++ 'All these missions are played as The Big Push\n'
++ 'Once all these battles are concluded then the German player '
++ 'may make one more attack into any area of their choosing, '
++ ' play the mission as normal.\n\n'
++ 'Gas attack\n'
++ 'After the first use by the Germans of chlorine gas in January 1915, '
++ 'all armies in World War I were quick to develop chemical gas '
++ 'and countermeasures to gas attacks, such as gas masks. '
++ ' Such equipment was cumbersome and made the defence more difficult. '
++ 'Added to that was the fact that the gas was heavier than air '
++ 'and so it sank into the trenches. '
++ 'Thus, during the first turn all BEF Firestorm Troop values '
++ ' and defences for the trenches are halved. '
++ 'This means you get 1 rifle section instead of 2, '
++ '2 Vickers HMG instead of 4 '
++ 'and 1 HMG nest instead of 2.',
+
+'Number of battles: 5\n'
++ 'Initiative bonus: Germans receive a +1 on initiative and win on ties\n'
++ 'Special modifer: The winner of the last battle adds +1 to their initiative.'
++ 'etc!!!',
+
+'turn 3 stuff!!',
+
+'turn 4 stuff'
+]
+
+this._allDescriptions = [
+`So we had met our rivals at last! For the first time in history tank was encountering tank!
+
+Frank Mitchell (First published in Everyman at War 1930)
+Turn two - 24 April, Day
+After breaking through the BEF trenches the Germans
+pushed on towards their objectives, and captured the town
+of Villers-Bretonneux and part of D’Arquenne Wood.
+Following the loss of Villers-Bretonneux, General Rawlins
+took measures to stop the offensive and recapture lost
+ground. Local counterattacks were ordered, but the 8th
+Division had been badly mauled and was unable to take
+offensive measures. Two companies of tanks were present
+and were ordered to engage the German units. No 1 section
+of A Company had one male and two female Mark IV tanks.
+It was dispatched to the Cachy switch line. There, for the
+first time on the field of battle, tanks from opposing forces
+met when the British tanks encountered “Nixe” of Abteilung
+III under the command of 2nd Lt. Wilhelm Biltz. The two
+female tanks (armed only with machine-guns) suffered
+damage and were forced to withdraw. But the male tank
+under the command of Lieutenant Frank Mitchell then
+hit the German tank three times. The German tank was
+immobilised and the crew of eighteen attempted to escape
+while Mitchell’s tank continued to fire at them, killing nine
+crew members. The British tank then faced two more A7Vs
+and German infantry, but the German tanks withdrew
+after the Mark IV had fired several ranging shots. After
+the German tanks retreated, seven Whippet tanks from X
+company arrived. These attacked the German infantry in
+the open, causing heavy casualties. They were then attacked
+by German artillery and three were destroyed. Elsewhere
+the German attack began to falter. General Foch ordered
+Rawlinson to recapture Villers-Bretonneux and the 13th
+and 15th AIF Brigades that were in reserve were ordered
+to attack. General Glasgow commander of the 13th AIF
+Brigade refused to attack during daylight hours commenting
+that:
+“If it was God Almighty who gave the order, we couldn’t do
+it in daylight. Here is all your artillery out of action and the
+enemy with all his guns in position.”
+The counter-attack was postponed until after dark.`,
+'22222',
+'33333',
+'44444'
+]
+}
+get turn() {
+return this._currentTurn
+// console.log(this._currentTurn)
+}
+
+get date() {
+let result = this._allDates[this._currentTurn - 1]
+return result
+//console.log(result)
+}
+
+get specialRules() {
+let result = this._allRules[this._currentTurn - 1]
+return result
+//console.log(result)
+}
+
+get description() {
+let result = this._allDescriptions[this._currentTurn - 1]
+return result
+//console.log(result)
+}
+
+   nextTurn() {
+    if(this._currentTurn <4){
+      let result = this._currentTurn += 1 
+      return result 
+      console.log(result)
+      }
+    }
+
+}
+
+
+
+let clock = new Clock()
+console.log(clock.turn)
+console.log(clock.date)
+console.log(clock.specialRules)
+console.log(clock.description)
+
+
+</script>
+<html>
+
+</html>
