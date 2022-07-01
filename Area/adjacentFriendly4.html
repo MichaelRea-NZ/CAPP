@@ -394,8 +394,8 @@ Image seems to be offset from the defined area
     }
     
     function displayMoveOptions(id) {
-      let eneamyNeighbours = game.findAdjacentFriendlyAreas(id)
-      for(let area of eneamyNeighbours){
+      let friendlyNeighbours = game.findAdjacentFriendlyAreas(id)
+      for(let area of friendlyNeighbours){
         let coords = document.getElementById(area._id).coords
         highlightArea(coords)
       }
