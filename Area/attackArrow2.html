@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Area Selection and Highlight Demo v2</title>
+  <link rel="stylesheet" type="text/css" href="map.css" />
+</head>
+
+<body>
+  <!--
+<img id="map_image" src="map.png" usemap="#map_map" width="800" height="800" alt="Villers_Map">
+Image seems to be offset from the defined area
+-->
+  
+  <canvas id="highlights_canvas"></canvas>
+  <canvas id="arrow_canvas"></canvas>
+  
+  <img id="attack_arrow" src="arrows2.png" alt="Attack Arrow" style="display: none;">
+  <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">
+
+  <map id="map_map" name="map_map">
+    <area target="" alt="A1" title="A1" href="#" coords="11,48,38,47,51,68,66,81,83,90,106,98,128,99,160,101,188,101,180,128,172,154,171,178,169,199,168,213,168,226,145,227,131,227,96,229,65,229,42,230,26,231,10,233" shape="poly">
+    <area target="" alt="A2" title="A2" href="#" coords="13,240,60,235,99,234,117,232,157,233,188,235,212,237,229,245,236,255,223,275,216,298,213,316,210,337,210,353,209,371,192,380,177,391,162,401,138,409,119,415,101,413,70,403,47,394,11,381" shape="poly">
+    <area target="" alt="A3" title="A3" href="#" coords="12,384,88,413,108,418,127,418,145,413,155,410,179,467,184,495,183,520,175,554,173,576,170,605,170,638,170,673,169,708,12,706" shape="poly">
+    <area target="" alt="B1" title="B1" href="#" coords="194,99,252,96,296,93,321,92,339,88,347,85,358,121,370,139,386,155,395,169,395,181,386,201,377,213,365,223,346,230,335,234,325,243,316,254,292,248,275,248,255,248,239,250,217,235,195,230,174,229,172,198" shape="poly">
+    <area target="" alt="B2" title="B2" href="#" coords="242,258,257,252,273,251,287,253,299,254,315,260,321,279,320,304,319,319,318,341,316,367,309,392,306,408,300,419,294,425,287,424,243,399,227,388,215,369,216,341,218,317,225,292,229,274" shape="poly">
+    <area target="" alt="B3" title="B3" href="#" coords="158,408,170,403,181,396,196,387,211,376,223,389,236,401,252,410,264,418,279,426,288,430,298,448,301,457,311,471,285,489,260,507,237,525,213,546,202,557,186,569,180,573,184,541,188,521,190,502,186,480,180,458" shape="poly">
+    <area target="" alt="B4" title="B4" href="#" coords="215,552,241,528,256,515,276,501,293,489,313,477,331,490,343,500,357,512,345,523,334,533,325,543,317,557,316,574,314,589,308,611,303,626,281,603,252,579" shape="poly">
+    <area target="" alt="B5" title="B5" href="#" coords="178,583,200,563,211,555,235,574,248,582,262,596,273,607,284,617,298,631,298,650,303,673,312,697,315,708,176,706,176,669,176,641,176,613" shape="poly">
+    <area target="" alt="C1" title="C1" href="#" coords="351,82,374,74,387,64,396,54,398,43,563,43,556,67,553,83,549,100,548,112,554,132,561,156,564,179,562,199,549,217,542,227,523,216,503,208,488,203,455,193,433,191,412,188,401,188,402,172,395,158,379,140,363,123" shape="poly">
+    <area target="" alt="C2" title="C2" href="#" coords="321,260,337,237,360,230,372,227,384,215,393,204,400,193,421,194,444,196,458,198,472,201,484,207,483,215,472,253,462,276,451,302,440,325,427,351,408,370,364,401,343,418,312,412,320,373,323,345,327,314,327,280" shape="poly">
+    <area target="" alt="C3" title="C3" href="#" coords="490,209,510,215,525,222,539,231,532,250,524,265,519,285,519,301,520,316,524,331,528,345,538,368,539,396,539,423,535,443,531,448,348,417,403,380,426,363,447,331,466,280,478,254" shape="poly">
+    <area target="" alt="C4" title="C4" href="#" coords="526,455,314,416,306,423,294,432,302,447,306,456,316,470,357,506,362,511,385,497,398,493,412,495,426,499,444,502,463,507,480,503,493,497,501,490,514,484,520,474" shape="poly">
+    <area target="" alt="C5" title="C5" href="#" coords="340,532,370,554,385,568,406,584,423,599,436,611,426,625,420,641,418,660,422,677,426,693,429,706,322,708,310,668,305,646,309,617,320,590,319,570,319,558,330,545" shape="poly">
+    <area target="" alt="D1" title="D1" href="#" coords="564,44,661,41,660,153,654,211,654,222,653,239,638,300,608,289,577,287,552,286,534,291,523,294,534,260,542,237,554,218,564,201,569,181,569,158,561,138,555,122,553,100" shape="poly">
+    <area target="" alt="D2" title="D2" href="#" coords="525,300,545,292,567,289,592,294,603,295,636,304,619,377,610,404,604,437,599,457,588,483,527,467,540,445,544,429,546,401,542,373,534,345,526,322" shape="poly">
+    <area target="" alt="D3" title="D3" href="#" coords="525,473,585,485,577,516,569,529,557,551,547,561,518,582,496,591,444,608,395,567,360,541,343,530,371,509,386,503,395,499,419,501,439,506,458,510,472,512,493,503,512,488" shape="poly">
+    <area target="" alt="D4" title="D4" href="#" coords="444,614,472,605,490,598,498,598,529,615,546,625,559,640,561,654,560,674,554,692,552,706,434,706,428,685,424,665,424,645,430,630" shape="poly">
+    <area target="" alt="E1" title="E1" href="#" coords="665,42,771,40,771,248,717,240,678,235,659,233,664,182,665,141,668,116,666,90" shape="poly">
+    <area target="" alt="E2" title="E2" href="#" coords="659,237,769,251,770,491,606,458" shape="poly">
+    <area target="" alt="E3" title="E3" href="#" coords="604,464,769,498,773,708,558,708,567,683,568,661,568,640,555,623,530,609,505,596,530,582,550,566,566,555,577,530" shape="poly">
+
+  </map>
+
+
+
+  <script>
+
+    /* eslint quotes: ["error", "single"] */
+    /* eslint semi: ["error", "never"] */
+    /* eslint no-unused-vars: "error" */
+    /* globals document console window */
+
+    const PALE_ORANGE = 'rgba(255, 165, 0, 0.3)'
+    const LIGHT_GREY = "rgb(0, 0, 0, 0.4)"
+    const LIGHT_PURPLE = "rgba(0, 0, 255, 0.25)"
+
+
+    var selectedArea = undefined
+
+    var mapMap = document.getElementById('map_map')
+    var highlightsCanvas = document.getElementById('highlights_canvas')
+    var highlightsContext = highlightsCanvas.getContext('2d')
+    
+     const ARROW_DISPLAY_WIDTH = 150
+     const ARROW_DISPLAY_HEIGHT = 150
+     const ARROW_IMAGE_WIDTH = 240
+     const ARROW_IMAGE_HEIGHT = 240
+
+    /* !! fixed BUG.. 
+    // without the following the canvas will capture the mouse events from the map of areas
+    // SOLUTION
+    // put a tranparent canvas on top of image and disable mouse stuff
+    // from https://stackoverflow.com/questions/27587532/image-map-and-canvas
+    // aslo see https://www.w3schools.com/cssref/pr_pos_z-index.asp
+        // the following is in map.css
+        #highlights_canvas  {
+          pointer-events: none;       
+          position:absolute;
+          z-index: 2;
+        }
+    */
+    var arrowImage = document.getElementById('attack_arrow')
+    var arrowCanvas = document.getElementById('arrow_canvas')
+    var arrowsContext = arrowCanvas.getContext('2d')
+    
+    arrowCanvas.width = document.getElementById('map_image').width
+    arrowCanvas.height = document.getElementById('map_image').height
+    highlightsCanvas.width = document.getElementById('map_image').width
+    highlightsCanvas.height = document.getElementById('map_image').height
+
+    function highlightArea(coords, highlightColor = PALE_ORANGE) {
+
+      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+      // get ready to draw
+      highlightsContext.beginPath()
+      highlightsContext.lineWidth = 0.1
+
+      // starting point
+      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+      // for all the border points
+      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+        // draw a line to each point
+        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+      }
+      // final line goes back to first point
+      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+      //// finish up the drawing
+      highlightsContext.fillStyle = highlightColor
+      highlightsContext.closePath()
+      highlightsContext.fill()
+      highlightsContext.stroke()
+    }
+
+    // see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
+    function clearHighlights() {
+      highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+    }
+
+    function displayArrow(mapX, mapY, unitIndex) {
+      arrowsContext.drawImage(arrowImage,
+      ARROW_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+      ARROW_IMAGE_WIDTH, ARROW_IMAGE_HEIGHT, // width and height of unit image
+      mapX, mapY, // draw position
+      ARROW_DISPLAY_WIDTH, ARROW_DISPLAY_HEIGHT) // draw width and height
+    }
+
+    function areaClickHandler(event) {
+      // NOTE: the same handler can be used for many areas
+      // event.target is the area of the map that was clicked
+      console.log(event.target.id, event.target.coords)
+      // NOTE: without this clicking again shades an area deeper
+      // and previous clicked areas remain shaded
+      clearHighlights()
+      // just use the area coords to draw the highlight
+      // no 2nd parameter so uses default pale orange colour
+      highlightArea(event.target.coords)
+      // a global variable is used to track the just clicked on  area
+      selectedArea = event.target.id
+    }
+
+    //attachs click to map of ALL areas
+    function loadHandler() {
+      mapMap.addEventListener('click', areaClickHandler, false)
+      displayArrow(340,470,0)
+      displayArrow(510,100,1)
+      displayArrow(420,440,2)
+      displayArrow(475,320,3)
+    }
+
+    window.onload = loadHandler
+
+  </script>
+</body>

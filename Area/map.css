@@ -49,3 +49,12 @@ p {
 	position:absolute;
 	z-index: 4;
 }
+
+#arrow_canvas
+{
+    pointer-events: none;       
+    /* make the canvas transparent to the mouse - 
+    needed since canvas is position in front of image */
+    position:absolute;
+    z-index: 5;
+}
