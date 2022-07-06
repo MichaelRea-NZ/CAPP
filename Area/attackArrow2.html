@@ -62,10 +62,17 @@ Image seems to be offset from the defined area
     var highlightsCanvas = document.getElementById('highlights_canvas')
     var highlightsContext = highlightsCanvas.getContext('2d')
     
+     //changes the shape of image. More width make image longer. less height skinner.   
      const ARROW_DISPLAY_WIDTH = 150
      const ARROW_DISPLAY_HEIGHT = 150
+     //how much of the to display. 
      const ARROW_IMAGE_WIDTH = 240
      const ARROW_IMAGE_HEIGHT = 240
+     
+    const NORTH = 0
+    const EAST = 1
+    const SOUTH = 2
+    const WEST = 3
 
     /* !! fixed BUG.. 
     // without the following the canvas will capture the mouse events from the map of areas
@@ -145,10 +152,17 @@ Image seems to be offset from the defined area
     //attachs click to map of ALL areas
     function loadHandler() {
       mapMap.addEventListener('click', areaClickHandler, false)
-      displayArrow(340,470,0)
-      displayArrow(510,100,1)
-      displayArrow(420,440,2)
-      displayArrow(475,320,3)
+      displayArrow(620,410,NORTH)
+      //displayArrow(410,520,NORTH)
+      //displayArrow(195,175,NORTH)
+      //displayArrow(500,575,EAST)
+      //displayArrow(570,300,EAST)
+      //displayArrow(410,530,SOUTH)
+      //displayArrow(630,420,SOUTH)
+      //displayArrow(230,400,SOUTH)
+      displayArrow(545,395,WEST)
+      //displayArrow(470,475,WEST)
+      //displayArrow(480,580,WEST)
     }
 
     window.onload = loadHandler
