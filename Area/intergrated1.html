@@ -4,6 +4,7 @@
 <head>
   <title>Area Selection and Highlight Demo v2</title>
   <link rel="stylesheet" type="text/css" href="map.css" />
+  <script src="./js/clock.js"></script>
 </head>
 
 <body>
@@ -86,983 +87,741 @@ Image seems to be offset from the defined area
 
   <script>
 
-    /* eslint quotes: ["error", "single"] */
-    /* eslint semi: ["error", "never"] */
-    /* eslint no-unused-vars: "error" */
-    /* globals document console window */
+        /* eslint quotes: ["error", "single"] */
+        /* eslint semi: ["error", "never"] */
+        /* eslint no-unused-vars: "error" */
+        /* globals document console window */
 
-    const PALE_ORANGE = 'rgba(255, 165, 0, 0.3)'
-    const LIGHT_GREY = "rgb(0, 0, 0, 0.4)"
-    const LIGHT_PURPLE = "rgba(0, 0, 255, 0.25)"
-	const GERMAN_COLOUR = 'rgba(102, 128, 153, 0.3)'
-    const ALLIED_COLOUR = 'rgba(255, 0, 0, 0.3)'
+        const PALE_ORANGE = 'rgba(255, 165, 0, 0.3)'
+        const LIGHT_GREY = "rgb(0, 0, 0, 0.4)"
+        const LIGHT_PURPLE = "rgba(0, 0, 255, 0.25)"
+        const GERMAN_COLOUR = 'rgba(102, 128, 153, 0.3)'
+        const ALLIED_COLOUR = 'rgba(255, 0, 0, 0.3)'
 
-    var selectedArea = undefined
+        var selectedArea = undefined
 
-    var mapMap = document.getElementById('map_map')
-    var highlightsCanvas = document.getElementById('highlights_canvas')
-    var highlightsContext = highlightsCanvas.getContext('2d')
-    
-     const ARROW_DISPLAY_WIDTH = 150
-     const ARROW_DISPLAY_HEIGHT = 150
-     const ARROW_IMAGE_WIDTH = 240
-     const ARROW_IMAGE_HEIGHT = 240
-	 
-	const UNIT_DISPLAY_WIDTH = 35
-    const UNIT_DISPLAY_HEIGHT = 35
-    const UNIT_IMAGE_WIDTH = 100
-    const UNIT_IMAGE_HEIGHT = 100
+        var mapMap = document.getElementById('map_map')
+        var highlightsCanvas = document.getElementById('highlights_canvas')
+        var highlightsContext = highlightsCanvas.getContext('2d')
 
-	const NORTH = 0
-	const NORTHEAST = 1
-	const EAST = 2
-	const SOUTHEAST = 3
-	const SOUTH = 4
-	const SOUTHWEST = 5
-	const WEST = 6
-	const NORTHWEST = 7 
-				
-    /* !! fixed BUG.. 
-    // without the following the canvas will capture the mouse events from the map of areas
-    // SOLUTION
-    // put a tranparent canvas on top of image and disable mouse stuff
-    // from https://stackoverflow.com/questions/27587532/image-map-and-canvas
-    // aslo see https://www.w3schools.com/cssref/pr_pos_z-index.asp
-        // the following is in map.css
-        #highlights_canvas  {
-          pointer-events: none;       
-          position:absolute;
-          z-index: 2;
+        const ARROW_DISPLAY_WIDTH = 150
+        const ARROW_DISPLAY_HEIGHT = 150
+        const ARROW_IMAGE_WIDTH = 240
+        const ARROW_IMAGE_HEIGHT = 240
+
+        const UNIT_DISPLAY_WIDTH = 35
+        const UNIT_DISPLAY_HEIGHT = 35
+        const UNIT_IMAGE_WIDTH = 100
+        const UNIT_IMAGE_HEIGHT = 100
+
+        const NORTH = 0
+        const NORTHEAST = 1
+        const EAST = 2
+        const SOUTHEAST = 3
+        const SOUTH = 4
+        const SOUTHWEST = 5
+        const WEST = 6
+        const NORTHWEST = 7
+
+        /* !! fixed BUG.. 
+        // without the following the canvas will capture the mouse events from the map of areas
+        // SOLUTION
+        // put a tranparent canvas on top of image and disable mouse stuff
+        // from https://stackoverflow.com/questions/27587532/image-map-and-canvas
+        // aslo see https://www.w3schools.com/cssref/pr_pos_z-index.asp
+            // the following is in map.css
+            #highlights_canvas  {
+              pointer-events: none;       
+              position:absolute;
+              z-index: 2;
+            }
+        */
+
+        class Unit {
+            constructor(id, name, army, training, branch, startTurn, startPosition) {
+                this._id = id
+                this._name = name
+                this._army = army
+                this._training = training
+                this._branch = branch
+                this._startTurn = startTurn
+                this._startPosition = startPosition
+                this._currentPosition = startPosition
+            }
+            get name() {
+                let result = `${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`
+                if (this._startTurn !== 1) {
+                    result += ` on turn ${this._startTurn}`
+                }
+                return result
+            }
+            get army() {
+                if (this._army == 'Allied') {
+                    return true
+                }
+                else {
+                    return false
+                }
+            }
         }
-    */
-	
-	class Unit {
-                constructor(id, name, army, training, branch, startTurn, startPosition) {
-                    this._id = id
-                    this._name = name
-                    this._army = army
-                    this._training = training
-                    this._branch = branch
-                    this._startTurn = startTurn
-                    this._startPosition = startPosition
-                    this._currentPosition = startPosition
+        class Area {
+            constructor(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
+                this._allNeighbours = []
+                this._allUnits = []
+                this._allAttackArrows = []
+                this._id = id
+                this._terrain = terrain
+                this._canSupplyAllies = canSupplyAllied
+                this._canSupplyGerman = canSupplyGerman
+                this._control = control
+                if (control == 'German') {
+                    this._isGerman = true
                 }
-                get name() {
-                    let result = `${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`
-                    if (this._startTurn !== 1) {
-                        result += ` on turn ${this._startTurn}`
-                    }
-                    return result
+                else {
+                    this._isAllied = true
                 }
-                get army() {
-                    if (this._army == 'Allied') {
-                        return true
-                    }
-                    else {
-                        return false
-                    }
+                this._victoryPoints = vp
+                this._name = fullName
+
+                this._centerX = centerX
+                this._centerY = centerY
+            }
+            addUnit(unit) {
+                this._allUnits.push(unit)
+            }
+            get areaName() {
+                let result = `${this._name}  ${this._id}  ${this._victoryPoints}`
+                return result
+            }
+            addNeighbour(aNeighbour) {
+                this._allNeighbours.push(aNeighbour)
+            }
+
+            addAttackArrow(anAttackArrow) {
+                this._allAttackArrows.push(anAttackArrow)
+            }
+
+        }
+        class Game {
+            constructor() {
+                this._allUnits = []
+                this._allAreas = []
+            }
+
+            addUnit(id, name, army, training, branch, startTurn, startPosition) {
+                let newUnit = new Unit(id, name, army, training, branch, startTurn, startPosition)
+                this._allUnits.push(newUnit)
+                let area = this._allAreas.find(area => area._id === startPosition)
+                if (area) {
+                    area.addUnit(newUnit)
                 }
             }
-            class Area {
-                constructor(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
-                    this._allNeighbours = []
-                    this._allUnits = []
-                    this._allAttackArrows = []
-                    this._id = id
-                    this._terrain = terrain
-                    this._canSupplyAllies = canSupplyAllied
-                    this._canSupplyGerman = canSupplyGerman
-                    this._control = control
-                    if (control == 'German') {
-                        this._isGerman = true
-                    }
-                    else {
-                        this._isAllied = true
-                    }
-                    this._victoryPoints = vp
-                    this._name = fullName
 
-                    this._centerX = centerX
-                    this._centerY = centerY
+            reportAlliedUnits() {
+                let result = ''
+                for (let unit of game._allUnits) {
+                    if (unit.army == true) {
+                        result += unit.name + '\n'
+                    }
                 }
-                addUnit(unit) {
-                    this._allUnits.push(unit)
-                }
-                get areaName() {
-                    let result = `${this._name}  ${this._id}  ${this._victoryPoints}`
-                    return result
-                }
-                addNeighbour(aNeighbour) {
-                    this._allNeighbours.push(aNeighbour)
-                }
-                
-                addAttackArrow(anAttackArrow){
-                  this._allAttackArrows.push(anAttackArrow)
-                }
-     
+                return result
             }
-            class Game {
-                constructor() {
-                    this._allUnits = []
-                    this._allAreas = []
-                }
 
-                addUnit(id, name, army, training, branch, startTurn, startPosition) {
-                    let newUnit = new Unit(id, name, army, training, branch, startTurn, startPosition)
-                    this._allUnits.push(newUnit)
-                    let area = this._allAreas.find(area => area._id === startPosition)
-                    if (area) {
-                        area.addUnit(newUnit)
+            reportGermanUnits() {
+                let result = ''
+                for (let unit of game._allUnits) {
+                    if (unit.army == false) {
+                        result += unit.name + '\n'
                     }
                 }
+                return result
+            }
 
-                reportAlliedUnits() {
-                    let result = ''
-                    for (let unit of game._allUnits) {
-                        if (unit.army == true) {
-                            result += unit.name + '\n'
-                        }
-                    }
-                    return result
-                }
+            addArea(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
+                let newArea = new Area(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp, fullName)
+                this._allAreas.push(newArea)
+            }
 
-                reportGermanUnits() {
-                    let result = ''
-                    for (let unit of game._allUnits) {
-                        if (unit.army == false) {
-                            result += unit.name + '\n'
-                        }
-                    }
-                    return result
+            reportAreas() {
+                let result = ''
+                for (let areas of game._allAreas) {
+                    result += areas.areaName + '\n'
                 }
+                return result
+            }
 
-                addArea(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
-                    let newArea = new Area(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp, fullName)
-                    this._allAreas.push(newArea)
-                }
-
-                reportAreas() {
-                    let result = ''
-                    for (let areas of game._allAreas) {
-                        result += areas.areaName + '\n'
-                    }
-                    return result
-                }
-                
-                findAdjacentEneamyAreas(targetAreaId) {
-                    let result = []
-                    const targetArea = this._allAreas.find(area => area._id === targetAreaId)
-                    var eneamy 
-                    if(targetArea._control === 'Allied'){
+            findAdjacentEneamyAreas(targetAreaId) {
+                let result = []
+                const targetArea = this._allAreas.find(area => area._id === targetAreaId)
+                var eneamy
+                if (targetArea._control === 'Allied') {
                     eneamy = 'German'
-                    }
-                    else{
+                }
+                else {
                     eneamy = 'Allied'
-                    }                   
-                    
-                    for (let neighbourArea of targetArea._allNeighbours) {
-                      //const neighbourArea = this._allAreas.find(area => area._id === areaID)
-                        if(neighbourArea._control === eneamy){                          
-                          result.push(neighbourArea) 
-                        }
-                    }
-                    return result
                 }
-                
-                findAdjacentFriendlyAreas(targetAreaId) {
-                    let result = []
-                    const targetArea = this._allAreas.find(area => area._id === targetAreaId)
-                    var eneamy 
-                    if(targetArea._control === 'Allied'){
-                    eneamy = 'Allied'
-                    }
-                    else{
-                    eneamy = 'German'
-                    }                   
-                    
-                    for (let neighbourArea of targetArea._allNeighbours) {
-                      //const neighbourArea = this._allAreas.find(area => area._id === areaID)
-                        if(neighbourArea._control === eneamy){                          
-                          result.push(neighbourArea) 
-                        }
-                    }
-                    return result
-                }
-                
-                 findAttackArrows(targetAreaId){
-                    let allAttackers = []
-                    const targetArea = this._allAreas.find(area => area._id === targetAreaId)                   
 
-                    for (let attackArea of targetArea._allAttackArrows) {                     
-                                                 
-                          allAttackers.push(attackArea[0]) 
-                       
-                    }
-					let allArrows = []
-					for (let attackAreaId of allAttackers){
-						const targetArea = this._allAreas.find(area => area._id === attackAreaId)
-						for (let x of targetArea._allAttackArrows){
-							
-							let id = x[0]
-							if (id === targetAreaId){
-								allArrows.push(x[1])
-							}
-						}
-					}
-                    return allArrows
-                  }
-
-                addNeighbours(targetAreaId, allNeighbourIds) {
-                    const targetArea = this._allAreas.find(area => area._id === targetAreaId)
-                    for (let neighbourAreaId of allNeighbourIds) {
-                        const neighbourArea = this._allAreas.find(area => area._id === neighbourAreaId)
-                        targetArea.addNeighbour(neighbourArea)
+                for (let neighbourArea of targetArea._allNeighbours) {
+                    //const neighbourArea = this._allAreas.find(area => area._id === areaID)
+                    if (neighbourArea._control === eneamy) {
+                        result.push(neighbourArea)
                     }
                 }
-                
-                addAttackArrows(attackAreaId, allNeighbourIds){
-                    const attackArea = this._allAreas.find(area => area._id === attackAreaId)
-                    for (let arrowAttackAreaId of allNeighbourIds){
-                      //const arrowAttackArea = this._allAreas.find(area => area._id === arrowAttackAreaId)
-                      attackArea.addAttackArrow(arrowAttackAreaId)      
-                    }
-                 }
-
+                return result
             }
-			
-class Clock {
-  constructor() {
-  this._currentTurn = 1
-  this._totalTurn = 4
-  this._allDates = [
-  'Turn One - 24 April, Morning',
-  'Turn two - 24 April, Day',
-  'Turn Three - 24 April, Counter-Attack',
-  'Turn four - 26-27 April, Consolidation'
-  ]
-  
-this._allRules = [
-//rules 1
-  `<p><b>Number of battles</b>: 4, see below,</p>
-  <p><b>Initiative bonus</b>: N/A, see below</p><h3>First turn</h3>
-  <p>The German player is automatically the attacker in all four battles 
-   and the entire turn is under Gas attack effects
-  The first attacks must be made as follows:</p>
-  <p>D-2 attacks C-3</p>
-  <p>D-3 attacks C-4</p>
-  <p>C-5 attacks B-4</p>
-  <p>All these missions are played as The Big Push</p>
-  <p>Once all these battles are concluded then the German player 
-  may make one more attack into any area of their choosing, 
-   play the mission as normal.</p>
-  <h3>Gas attack</h3>
-  <p>After the first use by the Germans of chlorine gas in January 1915, 
-  all armies in World War I were quick to develop chemical gas 
-  and countermeasures to gas attacks, such as gas masks. 
-  Such equipment was cumbersome and made the defence more difficult. 
-  Added to that was the fact that the gas was heavier than air 
-  and so it sank into the trenches. 
-  Thus, during the first turn all BEF Firestorm Troop values 
-  and defences for the trenches are halved. 
-  This means you get 1 rifle section instead of 2, 
-  2 Vickers HMG instead of 4 
-  and 1 HMG nest instead of 2.</p>`,
-<!-- rules2 -->
-  `<p><b>Number of battles:</b> 5</p>'
-  <p><b>Initiative bonus:</b> Germans receive a +1 on initiative and win on ties</p>
-  <p><b>Special modifer:</b> The winner of the last battle adds +1 to their initiative.
-  etc!!!</p>
-  <h3>Reinforcements And Withdrawal</h3>
-  <p>At the end of the turn remove any remaining tank
-  Firestorm Troops from the game. After you have done
-  this you may place the following reinforcements</p>
-  <h3>German Imperial Army:</h3>
-  <p>2x HMG platoons, these may be placed one each in any
-  German controlled area. They can be placed separately or
-  together as the German player wishes</p>
-  <h3>British Expeditionary Force</h3>
-  <p>2x 13th Bde AIF (Veteran Infantry) in Cachy (A-3) or
-  any adjacent area.</p>
-  <p>2x 15th Bde AIF (Veteran Infantry) in Fouilloy (B-1) or
-  any adjacent area.</p>
-  <p>Both Firestorm Troops form the same Brigade must be
-  placed together in the same area. They will then lead the
-  attack in turn 3.</p>`,
-<!-- rules 3 -->
-  `<p><b>Number of battles:</b> 2 Night-attack battles + 3 more for
-  a total of 5</p>'
-  <p><b>Initiative bonus:</b> AIF are automatically attackers in
-  the first two battles, after that the BEF receive a +1 on
-  initiative and win on ties</p>
-  <p><b>Special modifer:</b> The winner of the last battle adds +1
-  to his initiative</p>
-  <h3>Third Turn</h3>
-  <p>Start by playing two Night Fight battles. These are
-  fought using the rules for Darkness (page 273), so
-  the entire battles will be fought using the Night Fight
-  rules. The two Australian Brigades, the 13th Bde AIF
-  and 15th Bde AIF must make one attack each in any
-  German controlled area adjacent to theirs using both
-  AIF Firestorm troops for these engagements. Play the
-  battle as normal with the Australians as the attacker. In
-  addition to using the Night Fight Rules, there can be
-  no tanks during the night – they could not operate in
-  the dark and the German forces start the game pinned
-  down. This is to reflect the surprise of the attack which
-  was conducted without a preliminary bombardment.</p>
-  <p>After these two battles, play three more engagements/
-  battles as normal. These are fought in daylight. The
-  tide has turned and now the BEF receives a +1 bonus on
-  initiative as well as winning on ties. The side that won
-  the last battle gets an extra +1 bonus on initiative on the
-  next engagement</p>`,
-<!-- rules 4 -->
-  `<p><b>Number of battles:</b> 3</p>'
-  <p><b>Initiative bonus:</b> The BEF receive a +1 on initiative and
-  win on ties</p>
-  <p><b>Special rules:</b> The winner of the last battle adds +1
-  to his initiative</p>
-  <h3>Fourth Turn</h3>
-  <p>Play three engagements. The BEF receives a +1 bonus on
-  initiative as well as winning on ties. The side that won
-  the last battle gets an extra +1 bonus on initiative on the
-  next engagement</p>
-  <h3>Tidy up the lines</h3>
-  <p>At the end of the Forth turn any area that is cut off and
-  out of supply is captured by the side that has them cut
-  off. All Firestorm Troops in these areas are captured</p>
-  <p>Total your victory points at the
-  end of the turn and determine
-  the winner of Firestorm: Villers-Bretonneux.</p>`
-]
 
-this._allDescriptions = [
-<!-- discription 1 -->
-  `<i><p>We looked towards the line and through the trees a sudden flickering was seen, like summer lightning. Like a sudden
-  thundershower, the wood was drenched with all kinds of shell, including gas. ‘Get the men out into the open’ shouted the
-  company commander.</p>
-  <p>- Lieutenant F.S. Mason</p></i>
-  <p>The German attack was preceded by an artillery barrage,
-  using both mustard gas and high explosive rounds. The
-  German infantry with fourteen supporting A7V tanks broke
-  through the 8th Division, making a three mile wide gap in
-  the British lines. The 8th Division had been one of the elite
-  of the BEF but had suffered heavy losses during the German
-  spring offensive Operation Michael and had received young
-  and unexperienced troops to cover their losses. The front at
-  Villers-Bretonneux had been recently established after the
-  BEF had been pushed back during the German offensive so
-  troops from both sides had not had time to dig complex
-  trenches. The determined German onslaught broke through
-  the thinly defended BEF line and pushed towards Villers
-  Bretonneux.</p>`,
-<!-- discription 2 -->
-  `<i><p>So we had met our rivals at last! For the first time in history tank was encountering tank!</p>
-  <p>Frank Mitchell (First published in Everyman at War 1930)</p></i>
-  <p>After breaking through the BEF trenches the Germans
-  pushed on towards their objectives, and captured the town
-  of Villers-Bretonneux and part of D’Arquenne Wood.
-  Following the loss of Villers-Bretonneux, General Rawlins
-  took measures to stop the offensive and recapture lost
-  ground. Local counterattacks were ordered, but the 8th
-  Division had been badly mauled and was unable to take
-  offensive measures. Two companies of tanks were present
-  and were ordered to engage the German units. No 1 section
-  of A Company had one male and two female Mark IV tanks.
-  It was dispatched to the Cachy switch line. There, for the
-  first time on the field of battle, tanks from opposing forces
-  met when the British tanks encountered “Nixe” of Abteilung
-  III under the command of 2nd Lt. Wilhelm Biltz. The two
-  female tanks (armed only with machine-guns) suffered
-  damage and were forced to withdraw. But the male tank
-  under the command of Lieutenant Frank Mitchell then
-  hit the German tank three times. The German tank was
-  immobilised and the crew of eighteen attempted to escape
-  while Mitchell’s tank continued to fire at them, killing nine
-  crew members. The British tank then faced two more A7Vs
-  and German infantry, but the German tanks withdrew
-  after the Mark IV had fired several ranging shots. After
-  the German tanks retreated, seven Whippet tanks from X
-  company arrived. These attacked the German infantry in
-  the open, causing heavy casualties. They were then attacked
-  by German artillery and three were destroyed. Elsewhere
-  the German attack began to falter. General Foch ordered
-  Rawlinson to recapture Villers-Bretonneux and the 13th
-  and 15th AIF Brigades that were in reserve were ordered
-  to attack. General Glasgow commander of the 13th AIF
-  Brigade refused to attack during daylight hours commenting
-  that:</p>
-  <p>“If it was God Almighty who gave the order, we couldn’t do
-  it in daylight. Here is all your artillery out of action and the
-  enemy with all his guns in position.”</p>
-  <p>The counter-attack was postponed until after dark.</p>`,
-  
-  
-  `<i><p>They [the Germans] had no chance in the wild onslaught of maddened men…they were killed and killed. Bayonets passed with
-  ease through grey clad bodies, and were withdrawn with a sucking sound…One huge Australian advanced firing a Lewis Gun
-  from the shoulder, spraying the ground with lead…One saw running forms in the dark, and the flashes of rifles, then the evil pyre
-  in the town flared and showed to their killers white faces of Germans lurking in shell holes, or flinging away their arms and trying
-  to escape, only to be stabbed or shot down as they ran.</p>
-  <p>- Sergeant Walter Downing of the Australian 57TH Infantry Battalion</p>
-  <p>It was 2.30 when General Glasgow returned to General Heneker at Glisy and resumed the conference upon the plans. He told
-  Heneker that he had decided to start from a north south line - said to be clear of the enemy-between the wood and Cachy village,
-  and to attack eastwards, south of the wood, and past the south of Villers-Bretonneux</p>
-  <p>“But you can’t do that,” was the reply. “The corps commander says the attack is to be made from Cachy.”</p>
-  <p>"Why, it’s against all the teaching of your own army, Sir, to attack across the enemy’s front. They’d get hell from the right.’’</p>
-  <p>Attacking eastwards he would have his right protected and could do something to protect his left by dropping troops as he
-  advanced, to deal with the wood</p>
-  <p>“Tell us what you want us to do, Sir,” he said, “but you must let us do it our own way.”</p>
-  <p>- Official History of Australian in the War of 1914 – 1918, volume V – The Australian Imperial Force in France during the
-  Main German Offensive, 1918 – Chapter XVI</p></i>
-  <p>The Australian Imperial Force accomplished its attack before
-  the Germans had been able to reinforce their position
-  properly. The German machine-guns took their toll on the
-  Australians, but by the morning they had been overrun and
-  the Australians had almost surrounded Villers-Bretonneux.
-  What followed during the day were a series of engagements.
-  The Germans failed to consolidate the territory they had
-  captured the day before and were soon pushed back</p>
-  <i>
-  <p>War Office, 11th July, 1918</p>
-  <p>His Majesty the KING has been graciously pleased to approve
-  of the award of the Victoria Cross to the undermentioned
-  Officers and Non-Commissioned Officer: —</p>
-  <p>[...]</p>
-  <p>On 24/25 April 1918 at Villers-Bretonneux, France,
-  Lieutenant Sadlier’s platoon had to advance through a wood
-  where a strong enemy machine-gun post was causing casualties
-  and preventing the advance. Although he was himself
-  wounded, Lieutenant Sadlier at once collected his bombing
-  section and led them against the machine-guns, killing the
-  crews and capturing two of the guns. By this time his party
-  were all casualties and alone he attacked a third enemy
-  machine-gun with his revolver, killing the crew and taking
-  the gun. In doing so, he was again wounded.The very gallant
-  conduct of this officer was the means of clearing the flank, and
-  allowing the battalion to move forward, thereby saving a most
-  critical situation. His coolness and utter disregard of danger
-  inspired all.</p>
-  <p>Lieutenant Clifford Sadlier AIF (1982-1964)</p></i>`,
-  
-  `<i><p>The enemy, however, did not succeed in attaining his objectives, which were the villages of Fouilloy, south of Corbie, and Cachy,
-  west of Viller-Bretonneux, and the temporary progress which the enemy was able to make near Villers-Bretonneux was paid for in
-  heavy sacrifices of blood…</p>
-  <p>- The Scarborough Mercury</p></i>
-  <p>After two hard fought days and heavy casualties on both
-  sides, the BEF still held the initiative and recaptured most
-  of what the Germans had gained the first day. Both sides
-  consolidated their positions and the battle continued for a
-  while longer, but the major fighting was over. All the German
-  army had to show for their efforts was a section of the BEF
-  trench line. This would be their final offensive against
-  Amiens, as in August the Allies would launch their Hundred
-  Days Offensive - starting with the Battle of Montdidier
-  and leading to the collapse of German morale on the 8th
-  of August. The day which Erich Ludendorff would call “the
-  Black day of the German Army”.</p> `
-]
-}
-get turn() {
-return this._currentTurn
-// console.log(this._currentTurn)
-}
+            findAdjacentFriendlyAreas(targetAreaId) {
+                let result = []
+                const targetArea = this._allAreas.find(area => area._id === targetAreaId)
+                var eneamy
+                if (targetArea._control === 'Allied') {
+                    eneamy = 'Allied'
+                }
+                else {
+                    eneamy = 'German'
+                }
 
-get date() {
-let result = this._allDates[this._currentTurn - 1]
-return result
-//console.log(result)
-}
+                for (let neighbourArea of targetArea._allNeighbours) {
+                    //const neighbourArea = this._allAreas.find(area => area._id === areaID)
+                    if (neighbourArea._control === eneamy) {
+                        result.push(neighbourArea)
+                    }
+                }
+                return result
+            }
 
-get specialRules() {
-let result = this._allRules[this._currentTurn - 1]
-return result
-//console.log(result)
-}
+            findAttackArrows(targetAreaId) {
+                let allAttackers = []
+                const targetArea = this._allAreas.find(area => area._id === targetAreaId)
 
-get description() {
-let result = this._allDescriptions[this._currentTurn - 1]
-return result
-//console.log(result)
-}
+                for (let attackArea of targetArea._allAttackArrows) {
 
-   nextTurn() {
-    if(this._currentTurn <4){
-      let result = this._currentTurn += 1 
-      return result 
-      console.log(result)
-      }
-    }
+                    allAttackers.push(attackArea[0])
 
-}
+                }
+                let allArrows = []
+                for (let attackAreaId of allAttackers) {
+                    const targetArea = this._allAreas.find(area => area._id === attackAreaId)
+                    for (let x of targetArea._allAttackArrows) {
 
-           
-  
-            let game = new Game()
-
-            game.addArea('A1', 'open', true, false, 'Allied', 60, 124)
-            game.addArea('A2', 'woods', true, false, 'Allied', 50, 300, 80, 'D’Arquenne Wood')
-            game.addArea('A3', 'open', true, false, 'Allied', 50, 520, 60, 'Cachy')
-            game.addArea('B1', 'woods', true, false, 'Allied', 220, 111, 80, 'Fouilloy/Hill 104')
-            game.addArea('B2', 'city', true, false, 'Allied', 230, 320, 60, 'Villers-Bretonneux')
-            game.addArea('B3', 'open', true, false, 'Allied', 200, 460, 20)
-            game.addArea('B4', 'trench', true, false, 'Allied', 270, 550)
-            game.addArea('B5', 'trench', true, false, 'Allied', 230, 650)
-            game.addArea('C1', 'open', true, false, 'Allied', 440, 110)
-            game.addArea('C2', 'open', true, false, 'Allied', 370, 230, 20, 'Rue de Péronnes')
-            game.addArea('C3', 'trench', true, false, 'Allied', 470, 280)
-            game.addArea('C4', 'trench', true, false, 'Allied', 375, 440, 20, 'Monument Wood')
-            game.addArea('C5', 'trench', false, true, 'German', 320, 615)
-            game.addArea('D1', 'trench', false, true, 'German', 580, 160)
-            game.addArea('D2', 'trench', false, true, 'German', 555, 360)
-            game.addArea('D3', 'trench', false, true, 'German', 490, 490)
-            game.addArea('D4', 'woods', false, true, 'German', 450, 650)
-            game.addArea('E1', 'open', false, true, 'German', 680, 70)
-            game.addArea('E2', 'open', false, true, 'German', 670, 270)
-            game.addArea('E3', 'open', false, true, 'German', 570, 550)
-
-            game.addNeighbours('A1', ['B1', 'A2'])
-            game.addNeighbours('A2', ['A1', 'B1', 'B2', 'B3', 'A3'])
-            game.addNeighbours('A3', ['A2', 'B3', 'B5'])
-            game.addNeighbours('B1', ['A1', 'A2', 'B2', 'C2', 'C1'])
-            game.addNeighbours('B2', ['B1', 'C2', 'C4', 'B3', 'A2'])
-            game.addNeighbours('B3', ['B2', 'C4', 'B4', 'B5', 'A3', 'A2'])
-            game.addNeighbours('B4', ['B3', 'C4', 'D3', 'C5', 'B5'])
-            game.addNeighbours('B5', ['A3', 'B3', 'B4', 'C5'])
-            game.addNeighbours('C1', ['D1', 'C3', 'C2', 'B1'])
-            game.addNeighbours('C2', ['B1', 'C1', 'C3', 'C4', 'B2'])
-            game.addNeighbours('C3', ['C1', 'D1', 'D2', 'C4', 'C2'])
-            game.addNeighbours('C4', ['B2', 'C2', 'C3', 'D2', 'D3', 'B4', 'B3'])
-            game.addNeighbours('C5', ['B4', 'D3', 'D4', 'B5'])
-            game.addNeighbours('D1', ['E1', 'E2', 'D2', 'C3', 'C1'])
-            game.addNeighbours('D2', ['D1', 'E2', 'E3', 'D3', 'C4', 'C3'])
-            game.addNeighbours('D3', ['C4', 'D2', 'B4', 'E3', 'D4', 'C5'])
-            game.addNeighbours('D4', ['C5', 'D3', 'E3'])
-            game.addNeighbours('E1', ['D1', 'E2'])
-            game.addNeighbours('E2', ['D1', 'D2', 'E1', 'E3'])
-            game.addNeighbours('E3', ['D4', 'D3', 'D2', 'E2'])
-
-            //Allied units
-            game.addUnit(4, 'No 2 - A Coy Grove', 'Allied', 'Veteran', 'Mark IV tanks', 1, 'A1')
-            game.addUnit(7, 'No 1 – A Coy Mitchell ', 'Allied', 'Veteran', 'Mark IV tanks', 1, 'A2')
-            game.addUnit(8, 'X Coy Price', 'Allied', 'Trained', 'Whippet tanks', 1, 'A2')
-            game.addUnit(2, '24 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B2')
-            game.addUnit(5, '58 Bn MGC ', 'Allied', 'Trained', 'HMG', 1, 'B4')
-            game.addUnit(6, '173 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B5')
-            game.addUnit(0, '14 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, 'C1')
-            game.addUnit(3, '25 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C3')
-            game.addUnit(1, '23 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C4')
-            game.addUnit(9, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
-            game.addUnit(10, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
-            game.addUnit(11, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
-            game.addUnit(12, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
-
-            //German units
-            game.addUnit(0, 'Group II Uihlein', 'German', 'Trained', 'A7V tanks', 1, 'C5')
-            game.addUnit(1, '257', 'German', 'Fearless', 'Stoss', 1, 'C5')
-            game.addUnit(2, '419 RIR', 'German', 'Trained', 'Infantry', 1, 'C5')
-            game.addUnit(3, '478 RIR', 'German', 'Veteran', 'Infantry', 1, 'D1')
-            game.addUnit(4, 'Group I Skopnik', 'German', 'Veteran', 'A7V tanks', 1, 'D2')
-            game.addUnit(5, '48 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
-            game.addUnit(6, '207 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
-            game.addUnit(7, 'G Gr. 5', 'German', 'Fearless', 'Stoss', 1, 'D3')
-            game.addUnit(8, '93 RIR', 'German', 'Veteran', 'Infantry', 1, 'D3')
-            game.addUnit(9, 'Group III Steinhardt', 'German', 'Trained', 'A7V tanks', 1, 'D3')
-            game.addUnit(10, 'MG Abt 228', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
-            game.addUnit(11, 'MG Abt 4G', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
+                        let id = x[0]
+                        if (id === targetAreaId) {
+                            allArrows.push(x[1])
+                        }
+                    }
+                }
+                return allArrows
+            }
             
-            game.addAttackArrows('A1', [['B1', [110, 100, EAST]], ['A2', [20,160,SOUTH]]])
-            game.addAttackArrows('A2', [['A1', [20, 160, NORTH]], ['B1', [120,160,NORTHEAST]], ['B2', [125,250,EAST]], ['B3', [120,350,SOUTHEAST]], ['A3', [20,360,SOUTH]]])
-            game.addAttackArrows('A3', [['A2', [20, 350, NORTH]], ['B3', [80,410,EAST]], ['B5', [80,560,EAST]]])
-            game.addAttackArrows('B1', [['A1', [100, 60, WEST]], ['A2', [115, 190, SOUTHWEST]], ['B2', [190, 190, SOUTH]], ['C2', [280, 155, EAST]], ['C1', [280, 60, EAST]]])
-            game.addAttackArrows('B2', [['B1', [195, 175, NORTH]], ['C2', [270, 230, EAST]], ['C4', [240, 310, SOUTH]], ['B3', [160, 325, SOUTH]], ['A2', [170, 230, WEST]]])
-            game.addAttackArrows('B3', [['B2', [180, 320, NORTH]], ['C4', [250, 390, EAST]], ['B4', [190, 430, SOUTHEAST]], ['B5', [135, 495, SOUTH]], ['A3', [80, 420, WEST]], ['A2', [110, 330, NORTHWEST]]])
-            game.addAttackArrows('B4', [['B3', [195, 430, NORTHWEST]], ['C4', [270, 430, NORTH]], ['D3', [280, 470, EAST]], ['C5', [245, 520, EAST]], ['B5', [215, 520, SOUTHWEST]]])
-            game.addAttackArrows('B5', [['A3', [ 70, 590, WEST]], ['B3', [140, 500, NORTH]], ['B4', [170, 530, NORTHEAST]], ['C5', [230, 590, EAST]]])
-            game.addAttackArrows('C1', [['D1', [480, 40, EAST]], ['C3', [430, 130, SOUTH]], ['C2', [360, 130, SOUTH]], ['B1', [290, 50, WEST]]])
-            game.addAttackArrows('C2', [['B1', [280, 140, NORTHWEST]], ['C1', [360, 120, NORTH]], ['C3', [350, 255, EAST]], ['C4', [270, 320, SOUTH]], ['B2', [280, 260, WEST]]])
-            //game.addAttackArrows('C2', [['B1', [280, 140, WEST]], ['C1', [360, 120, NORTH]], ['C3', [350, 255, EAST]], ['C4', [270, 320, SOUTH]], ['B2', [280, 260, WEST]]])
-            game.addAttackArrows('C3', [['C1', [435, 115, NORTH]], ['D1', [465, 190, EAST]], ['D2', [450, 295, EAST]], ['C4', [370, 330, SOUTH]], ['C2', [360, 235, WEST]]])
-            game.addAttackArrows('C4', [['B2', [270, 340, NORTHWEST]], ['C2', [290, 340, NORTH]], ['C3', [400, 350, NORTH]], ['D2', [430, 375, NORTHEAST]], ['D3', [370, 430, SOUTH]], ['B4', [270, 400, SOUTHWEST]], ['B3', [220, 385, WEST]]])
-            game.addAttackArrows('C5', [['B4', [280, 510, NORTHWEST]], ['D3', [330, 520, NORTHEAST]], ['D4', [350, 595, EAST]], ['B5', [ 220, 595, WEST]]])
-            game.addAttackArrows('D1', [['E1', [590, 40, EAST]], ['E2', [600, 200, EAST]], ['D2', [500, 250, SOUTH]], ['C3', [485, 185, WEST]], ['C1', [480, 45, WEST]]])
-            game.addAttackArrows('D2', [['D1', [510, 200, NORTH]], ['E2', [570, 300, EAST]], ['E3', [530, 415, SOUTHEAST]], ['D3', [470, 400, SOUTH]], ['C4', [430, 390, WEST]], ['C3', [445, 285, WEST]]])
-            game.addAttackArrows('D3', [['C4', [370, 450, NORTH]], ['D2', [490, 380, NORTH]], ['B4', [270, 460, WEST]], ['E3', [500, 475, EAST]], ['D4', [410, 530, SOUTH]], ['C5', [315, 520, SOUTH]]])
-            game.addAttackArrows('D4', [['C5', [350, 575, WEST]], ['D3', [410, 520, NORTH]], ['E3', [500, 575, EAST]]])
-            game.addAttackArrows('E1', [['D1', [575, 55, WEST]], ['E2', [630, 180, SOUTH]]])
-            game.addAttackArrows('E2', [['D1', [575, 190, WEST]], ['D2', [560, 300, WEST]], ['E1', [640, 140, NORTH]], ['E3', [630, 420, SOUTH]]])
-            game.addAttackArrows('E3', [['D4', [480, 580, WEST]], ['D3', [470, 475, WEST]], ['D2', [545, 395, NORTHWEST]], ['E2', [620, 410, NORTH]]])
+            findUnitsAreas(control){
+            let allOrigins = []
+            for (area of game.allAreas) {
+                if (area._controll === controll) {
+                    if (area._allunits.length > 0)
+                        allOrigins.push(area.Id)
+                }         
+              }
+            return allOrigins
+            }
 
-    var arrowImage = document.getElementById('attack_arrow')
-    var arrowCanvas = document.getElementById('arrow_canvas')
-    var arrowsContext = arrowCanvas.getContext('2d')
-	var germanImage = document.getElementById('german_image')
-    var alliedImage = document.getElementById('allied_image')
-    var unitsCanvas = document.getElementById('units_canvas')
-    var unitsContext = unitsCanvas.getContext('2d')
-    
-	unitsCanvas.width = document.getElementById('map_image').width
-    unitsCanvas.height = document.getElementById('map_image').height
-    arrowCanvas.width = document.getElementById('map_image').width
-    arrowCanvas.height = document.getElementById('map_image').height
-    highlightsCanvas.width = document.getElementById('map_image').width
-    highlightsCanvas.height = document.getElementById('map_image').height
-
-    function highlightArea(coords, highlightColor = PALE_ORANGE) {
-
-      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
-
-      // get ready to draw
-      highlightsContext.beginPath()
-      highlightsContext.lineWidth = 0.1
-
-      // starting point
-      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
-
-      // for all the border points
-      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-        // draw a line to each point
-        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-      }
-      // final line goes back to first point
-      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
-
-      //// finish up the drawing
-      highlightsContext.fillStyle = highlightColor
-      highlightsContext.closePath()
-      highlightsContext.fill()
-      highlightsContext.stroke()
-    }
-	
-
-
-    // see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
-    function clearHighlights() {
-      highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
-    }
-	
-
-	
-	function clearArrows(){
-		arrowsContext.clearRect(0, 0, arrowCanvas.width, arrowCanvas.height)
-	}
-
-	            function highlightAllied(coords, shape, highlightColor = ALLIED_COLOUR) {
-                if (shape == 'poly' && game._allAreas._control === "Allied") {
-                    const borderPointsArray = coords.split(',').map(element => { return Number(element) })
-
-                    // get ready to draw
-                    highlightsContext.beginPath()
-                    highlightsContext.lineWidth = 0.1
-
-                    // starting point
-                    highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
-
-                    // for all the border points
-                    for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-                        // draw a line to each point
-                        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-                    }
-                    // final line goes back to first point
-                    highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
-
-                    // finish up the drawing
-                    highlightsContext.fillStyle = highlightColor
-                    highlightsContext.closePath()
-                    highlightsContext.fill()
-                    highlightsContext.stroke()
+            addNeighbours(targetAreaId, allNeighbourIds) {
+                const targetArea = this._allAreas.find(area => area._id === targetAreaId)
+                for (let neighbourAreaId of allNeighbourIds) {
+                    const neighbourArea = this._allAreas.find(area => area._id === neighbourAreaId)
+                    targetArea.addNeighbour(neighbourArea)
                 }
             }
-			
-			function defaultSetUp() {
-                for (let unit of game._allUnits) {
-                    let areaName = unit._startPosition
-                    console.log(unit)
-                    let area = game._allAreas.find(area => area._id === unit._startPosition)
-                    if (area) {
 
-                        console.log(area._centerX, area._centerY, unit._id)
-                        if (unit._army === "Allied") {
-                            displayAllied(area._centerX, area._centerY, unit._id)
-                        }
-                        if (unit._startTurn === 1 && unit._army === "German") {
-                            displayGerman(area._centerX, area._centerY, unit._id)
-                        }
-                    }
+            addAttackArrows(attackAreaId, allNeighbourIds) {
+                const attackArea = this._allAreas.find(area => area._id === attackAreaId)
+                for (let arrowAttackAreaId of allNeighbourIds) {
+                    //const arrowAttackArea = this._allAreas.find(area => area._id === arrowAttackAreaId)
+                    attackArea.addAttackArrow(arrowAttackAreaId)
                 }
-                let turn = 1
+            }
 
-                //loops to get _centerX and _centerY and assigns value to x and y.
-                for (let area of game._allAreas) {
-                    let x = area._centerX
-                    let y = area._centerY
+        }
 
-                    //loops through _allUnits		
-                    for (let unit of area._allUnits) {
-                        console.log(area._centerX, area._centerY, unit._id)
-                        // checks that the unit is on the board during the start turn and that it is an Allied unit
-                        if (unit._startTurn <= turn && unit._army === 'Allied') {
-                            console.log('Testing Allied')
-                            // displays the Allied unit
-                            displayAllied(x, y, unit._id)
-                        }
-                        // checks that the unit is on the board during the start turn and that it is a German unit.
-                        if (unit._startTurn <= turn && unit._army === 'German') {
-                            // displays the German unit.
-                            console.log('Testing German')
-                            displayGerman(x, y, unit._id)
 
-                        }
-                        // Offsets the unit if there is another unit already on the area.
-                        x += 20
-                        y += 20
+
+
+
+
+
+
+        let game = new Game()
+
+
+        game.addArea('A1', 'open', true, false, 'Allied', 60, 124)
+        game.addArea('A2', 'woods', true, false, 'Allied', 50, 300, 80, 'D’Arquenne Wood')
+        game.addArea('A3', 'open', true, false, 'Allied', 50, 520, 60, 'Cachy')
+        game.addArea('B1', 'woods', true, false, 'Allied', 220, 111, 80, 'Fouilloy/Hill 104')
+        game.addArea('B2', 'city', true, false, 'Allied', 230, 320, 60, 'Villers-Bretonneux')
+        game.addArea('B3', 'open', true, false, 'Allied', 200, 460, 20)
+        game.addArea('B4', 'trench', true, false, 'Allied', 270, 550)
+        game.addArea('B5', 'trench', true, false, 'Allied', 230, 650)
+        game.addArea('C1', 'open', true, false, 'Allied', 440, 110)
+        game.addArea('C2', 'open', true, false, 'Allied', 370, 230, 20, 'Rue de Péronnes')
+        game.addArea('C3', 'trench', true, false, 'Allied', 470, 280)
+        game.addArea('C4', 'trench', true, false, 'Allied', 375, 440, 20, 'Monument Wood')
+        game.addArea('C5', 'trench', false, true, 'German', 320, 615)
+        game.addArea('D1', 'trench', false, true, 'German', 580, 160)
+        game.addArea('D2', 'trench', false, true, 'German', 555, 360)
+        game.addArea('D3', 'trench', false, true, 'German', 490, 490)
+        game.addArea('D4', 'woods', false, true, 'German', 450, 650)
+        game.addArea('E1', 'open', false, true, 'German', 680, 70)
+        game.addArea('E2', 'open', false, true, 'German', 670, 270)
+        game.addArea('E3', 'open', false, true, 'German', 570, 550)
+
+        game.addNeighbours('A1', ['B1', 'A2'])
+        game.addNeighbours('A2', ['A1', 'B1', 'B2', 'B3', 'A3'])
+        game.addNeighbours('A3', ['A2', 'B3', 'B5'])
+        game.addNeighbours('B1', ['A1', 'A2', 'B2', 'C2', 'C1'])
+        game.addNeighbours('B2', ['B1', 'C2', 'C4', 'B3', 'A2'])
+        game.addNeighbours('B3', ['B2', 'C4', 'B4', 'B5', 'A3', 'A2'])
+        game.addNeighbours('B4', ['B3', 'C4', 'D3', 'C5', 'B5'])
+        game.addNeighbours('B5', ['A3', 'B3', 'B4', 'C5'])
+        game.addNeighbours('C1', ['D1', 'C3', 'C2', 'B1'])
+        game.addNeighbours('C2', ['B1', 'C1', 'C3', 'C4', 'B2'])
+        game.addNeighbours('C3', ['C1', 'D1', 'D2', 'C4', 'C2'])
+        game.addNeighbours('C4', ['B2', 'C2', 'C3', 'D2', 'D3', 'B4', 'B3'])
+        game.addNeighbours('C5', ['B4', 'D3', 'D4', 'B5'])
+        game.addNeighbours('D1', ['E1', 'E2', 'D2', 'C3', 'C1'])
+        game.addNeighbours('D2', ['D1', 'E2', 'E3', 'D3', 'C4', 'C3'])
+        game.addNeighbours('D3', ['C4', 'D2', 'B4', 'E3', 'D4', 'C5'])
+        game.addNeighbours('D4', ['C5', 'D3', 'E3'])
+        game.addNeighbours('E1', ['D1', 'E2'])
+        game.addNeighbours('E2', ['D1', 'D2', 'E1', 'E3'])
+        game.addNeighbours('E3', ['D4', 'D3', 'D2', 'E2'])
+
+        //Allied units
+        game.addUnit(4, 'No 2 - A Coy Grove', 'Allied', 'Veteran', 'Mark IV tanks', 1, 'A1')
+        game.addUnit(7, 'No 1 – A Coy Mitchell ', 'Allied', 'Veteran', 'Mark IV tanks', 1, 'A2')
+        game.addUnit(8, 'X Coy Price', 'Allied', 'Trained', 'Whippet tanks', 1, 'A2')
+        game.addUnit(2, '24 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B2')
+        game.addUnit(5, '58 Bn MGC ', 'Allied', 'Trained', 'HMG', 1, 'B4')
+        game.addUnit(6, '173 Bde', 'Allied', 'Trained', 'Infantry', 1, 'B5')
+        game.addUnit(0, '14 Bde AIF', 'Allied', 'Veteran', 'Infantry', 1, 'C1')
+        game.addUnit(3, '25 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C3')
+        game.addUnit(1, '23 Bde', 'Allied', 'Trained', 'Infantry', 1, 'C4')
+        game.addUnit(9, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
+        game.addUnit(10, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
+        game.addUnit(11, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
+        game.addUnit(12, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
+
+        //German units
+        game.addUnit(0, 'Group II Uihlein', 'German', 'Trained', 'A7V tanks', 1, 'C5')
+        game.addUnit(1, '257', 'German', 'Fearless', 'Stoss', 1, 'C5')
+        game.addUnit(2, '419 RIR', 'German', 'Trained', 'Infantry', 1, 'C5')
+        game.addUnit(3, '478 RIR', 'German', 'Veteran', 'Infantry', 1, 'D1')
+        game.addUnit(4, 'Group I Skopnik', 'German', 'Veteran', 'A7V tanks', 1, 'D2')
+        game.addUnit(5, '48 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
+        game.addUnit(6, '207 RIR', 'German', 'Veteran', 'Infantry', 1, 'D2')
+        game.addUnit(7, 'G Gr. 5', 'German', 'Fearless', 'Stoss', 1, 'D3')
+        game.addUnit(8, '93 RIR', 'German', 'Veteran', 'Infantry', 1, 'D3')
+        game.addUnit(9, 'Group III Steinhardt', 'German', 'Trained', 'A7V tanks', 1, 'D3')
+        game.addUnit(10, 'MG Abt 228', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
+        game.addUnit(11, 'MG Abt 4G', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
+
+        game.addAttackArrows('A1', [['B1', [110, 100, EAST]], ['A2', [20, 160, SOUTH]]])
+        game.addAttackArrows('A2', [['A1', [20, 160, NORTH]], ['B1', [120, 160, NORTHEAST]], ['B2', [125, 250, EAST]], ['B3', [120, 350, SOUTHEAST]], ['A3', [20, 360, SOUTH]]])
+        game.addAttackArrows('A3', [['A2', [20, 350, NORTH]], ['B3', [80, 410, EAST]], ['B5', [80, 560, EAST]]])
+        game.addAttackArrows('B1', [['A1', [100, 60, WEST]], ['A2', [115, 190, SOUTHWEST]], ['B2', [190, 190, SOUTH]], ['C2', [280, 155, SOUTHEAST]], ['C1', [280, 60, EAST]]])
+        game.addAttackArrows('B2', [['B1', [195, 175, NORTH]], ['C2', [270, 230, EAST]], ['C4', [250, 350, SOUTHEAST]], ['B3', [160, 325, SOUTH]], ['A2', [170, 230, WEST]]])
+        game.addAttackArrows('B3', [['B2', [180, 320, NORTH]], ['C4', [250, 390, EAST]], ['B4', [190, 430, SOUTHEAST]], ['B5', [135, 495, SOUTH]], ['A3', [80, 420, WEST]], ['A2', [110, 330, NORTHWEST]]])
+        game.addAttackArrows('B4', [['B3', [195, 430, NORTHWEST]], ['C4', [270, 430, NORTHEAST]], ['D3', [280, 470, EAST]], ['C5', [245, 520, SOUTHEAST]], ['B5', [215, 520, SOUTHWEST]]])
+        game.addAttackArrows('B5', [['A3', [70, 590, WEST]], ['B3', [140, 500, NORTH]], ['B4', [170, 530, NORTHEAST]], ['C5', [230, 590, EAST]]])
+        game.addAttackArrows('C1', [['D1', [480, 40, EAST]], ['C3', [430, 130, SOUTH]], ['C2', [360, 130, SOUTH]], ['B1', [290, 50, WEST]]])
+        game.addAttackArrows('C2', [['B1', [280, 140, NORTHWEST]], ['C1', [360, 120, NORTH]], ['C3', [350, 255, EAST]], ['C4', [270, 320, SOUTH]], ['B2', [280, 260, WEST]]])
+        //game.addAttackArrows('C2', [['B1', [280, 140, WEST]], ['C1', [360, 120, NORTH]], ['C3', [350, 255, EAST]], ['C4', [270, 320, SOUTH]], ['B2', [280, 260, WEST]]])
+        game.addAttackArrows('C3', [['C1', [435, 115, NORTH]], ['D1', [465, 190, NORTHEAST]], ['D2', [450, 295, EAST]], ['C4', [370, 330, SOUTH]], ['C2', [360, 235, WEST]]])
+        game.addAttackArrows('C4', [['B2', [270, 340, NORTHWEST]], ['C2', [290, 340, NORTH]], ['C3', [400, 350, NORTH]], ['D2', [430, 375, NORTHEAST]], ['D3', [370, 430, SOUTH]], ['B4', [270, 400, SOUTHWEST]], ['B3', [220, 385, WEST]]])
+        game.addAttackArrows('C5', [['B4', [280, 510, NORTHWEST]], ['D3', [330, 520, NORTHEAST]], ['D4', [350, 595, EAST]], ['B5', [220, 595, WEST]]])
+        game.addAttackArrows('D1', [['E1', [590, 40, EAST]], ['E2', [600, 200, EAST]], ['D2', [500, 250, SOUTH]], ['C3', [465, 210, SOUTHWEST]], ['C1', [480, 45, WEST]]])
+        game.addAttackArrows('D2', [['D1', [510, 200, NORTH]], ['E2', [570, 300, EAST]], ['E3', [530, 415, SOUTHEAST]], ['D3', [470, 400, SOUTH]], ['C4', [450, 360, SOUTHWEST]], ['C3', [445, 285, WEST]]])
+        game.addAttackArrows('D3', [['C4', [370, 450, NORTH]], ['D2', [490, 380, NORTH]], ['B4', [270, 460, WEST]], ['E3', [500, 475, EAST]], ['D4', [410, 530, SOUTH]], ['C5', [315, 520, SOUTHWEST]]])
+        game.addAttackArrows('D4', [['C5', [350, 575, WEST]], ['D3', [410, 520, NORTH]], ['E3', [500, 575, EAST]]])
+        game.addAttackArrows('E1', [['D1', [575, 55, WEST]], ['E2', [630, 180, SOUTH]]])
+        game.addAttackArrows('E2', [['D1', [575, 190, NORTHWEST]], ['D2', [560, 300, WEST]], ['E1', [640, 140, NORTH]], ['E3', [630, 420, SOUTH]]])
+        game.addAttackArrows('E3', [['D4', [480, 580, WEST]], ['D3', [470, 475, WEST]], ['D2', [545, 395, NORTHWEST]], ['E2', [620, 410, NORTH]]])
+
+        var arrowImage = document.getElementById('attack_arrow')
+        var arrowCanvas = document.getElementById('arrow_canvas')
+        var arrowsContext = arrowCanvas.getContext('2d')
+        var germanImage = document.getElementById('german_image')
+        var alliedImage = document.getElementById('allied_image')
+        var unitsCanvas = document.getElementById('units_canvas')
+        var unitsContext = unitsCanvas.getContext('2d')
+
+        unitsCanvas.width = document.getElementById('map_image').width
+        unitsCanvas.height = document.getElementById('map_image').height
+        arrowCanvas.width = document.getElementById('map_image').width
+        arrowCanvas.height = document.getElementById('map_image').height
+        highlightsCanvas.width = document.getElementById('map_image').width
+        highlightsCanvas.height = document.getElementById('map_image').height
+
+        function highlightArea(coords, highlightColor = PALE_ORANGE) {
+
+            const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+            // get ready to draw
+            highlightsContext.beginPath()
+            highlightsContext.lineWidth = 0.1
+
+            // starting point
+            highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+            // for all the border points
+            for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                // draw a line to each point
+                highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+            }
+            // final line goes back to first point
+            highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+            //// finish up the drawing
+            highlightsContext.fillStyle = highlightColor
+            highlightsContext.closePath()
+            highlightsContext.fill()
+            highlightsContext.stroke()
+        }
+
+
+
+        // see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
+        function clearHighlights() {
+            highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+        }
+
+
+
+        function clearArrows() {
+            arrowsContext.clearRect(0, 0, arrowCanvas.width, arrowCanvas.height)
+        }
+
+        function highlightAllied(coords, shape, highlightColor = ALLIED_COLOUR) {
+            if (shape == 'poly' && game._allAreas._control === "Allied") {
+                const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+                // get ready to draw
+                highlightsContext.beginPath()
+                highlightsContext.lineWidth = 0.1
+
+                // starting point
+                highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+                // for all the border points
+                for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                    // draw a line to each point
+                    highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+                }
+                // final line goes back to first point
+                highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+                // finish up the drawing
+                highlightsContext.fillStyle = highlightColor
+                highlightsContext.closePath()
+                highlightsContext.fill()
+                highlightsContext.stroke()
+            }
+        }
+
+        function defaultSetUp() {
+            for (let unit of game._allUnits) {
+                let areaName = unit._startPosition
+                console.log(unit)
+                let area = game._allAreas.find(area => area._id === unit._startPosition)
+                if (area) {
+
+                    console.log(area._centerX, area._centerY, unit._id)
+                    if (unit._army === "Allied") {
+                        displayAllied(area._centerX, area._centerY, unit._id)
+                    }
+                    if (unit._startTurn === 1 && unit._army === "German") {
+                        displayGerman(area._centerX, area._centerY, unit._id)
                     }
                 }
             }
-			
-			function alliedSetUp() {
-                for (let unit of game._allUnits) {
-                    let areaName = unit._startPosition
-                    console.log(unit)
-                    let area = game._allAreas.find(area => area._id === unit._startPosition)
-                    if (area) {
+            let turn = 1
 
-                        console.log(area._centerX, area._centerY, unit._id)
-                        if (unit._army === "Allied") {
-                            displayAllied(area._centerX, area._centerY, unit._id)
-                        }                        
+            //loops to get _centerX and _centerY and assigns value to x and y.
+            for (let area of game._allAreas) {
+                let x = area._centerX
+                let y = area._centerY
+
+                //loops through _allUnits		
+                for (let unit of area._allUnits) {
+                    console.log(area._centerX, area._centerY, unit._id)
+                    // checks that the unit is on the board during the start turn and that it is an Allied unit
+                    if (unit._startTurn <= turn && unit._army === 'Allied') {
+                        console.log('Testing Allied')
+                        // displays the Allied unit
+                        displayAllied(x, y, unit._id)
                     }
+                    // checks that the unit is on the board during the start turn and that it is a German unit.
+                    if (unit._startTurn <= turn && unit._army === 'German') {
+                        // displays the German unit.
+                        console.log('Testing German')
+                        displayGerman(x, y, unit._id)
+
+                    }
+                    // Offsets the unit if there is another unit already on the area.
+                    x += 20
+                    y += 20
                 }
-                let turn = 1
+            }
+        }
 
-                //loops to get _centerX and _centerY and assigns value to x and y.
-                for (let area of game._allAreas) {
-                    let x = area._centerX
-                    let y = area._centerY
+        function alliedSetUp() {
+            for (let unit of game._allUnits) {
+                let areaName = unit._startPosition
+                console.log(unit)
+                let area = game._allAreas.find(area => area._id === unit._startPosition)
+                if (area) {
 
-                    //loops through _allUnits		
-                    for (let unit of area._allUnits) {
-                        console.log(area._centerX, area._centerY, unit._id)
-                        // checks that the unit is on the board during the start turn and that it is an Allied unit
-                        if (unit._startTurn <= turn && unit._army === 'Allied') {                            
-                            // displays the Allied unit
-                            displayAllied(x, y, unit._id)
-                        }
-
-                        // Offsets the unit if there is another unit already on the area.
-                        x += 20
-                        y += 20
+                    console.log(area._centerX, area._centerY, unit._id)
+                    if (unit._army === "Allied") {
+                        displayAllied(area._centerX, area._centerY, unit._id)
                     }
                 }
             }
-			
-			function germanSetUp() {
-                for (let unit of game._allUnits) {
-                    let areaName = unit._startPosition
-                    console.log(unit)
-                    let area = game._allAreas.find(area => area._id === unit._startPosition)
-                    if (area) {
+            let turn = 1
 
-                        console.log(area._centerX, area._centerY, unit._id)                       
-                        if (unit._startTurn === 1 && unit._army === "German") {
-                            displayGerman(area._centerX, area._centerY, unit._id)
-                        }
+            //loops to get _centerX and _centerY and assigns value to x and y.
+            for (let area of game._allAreas) {
+                let x = area._centerX
+                let y = area._centerY
+
+                //loops through _allUnits		
+                for (let unit of area._allUnits) {
+                    console.log(area._centerX, area._centerY, unit._id)
+                    // checks that the unit is on the board during the start turn and that it is an Allied unit
+                    if (unit._startTurn <= turn && unit._army === 'Allied') {
+                        // displays the Allied unit
+                        displayAllied(x, y, unit._id)
                     }
+
+                    // Offsets the unit if there is another unit already on the area.
+                    x += 20
+                    y += 20
                 }
-                let turn = 1
+            }
+        }
 
-                //loops to get _centerX and _centerY and assigns value to x and y.
-                for (let area of game._allAreas) {
-                    let x = area._centerX
-                    let y = area._centerY
+        function germanSetUp() {
+            for (let unit of game._allUnits) {
+                let areaName = unit._startPosition
+                console.log(unit)
+                let area = game._allAreas.find(area => area._id === unit._startPosition)
+                if (area) {
 
-                    //loops through _allUnits		
-                    for (let unit of area._allUnits) {
-                        console.log(area._centerX, area._centerY, unit._id)
-                        // checks that the unit is on the board during the start turn and that it is an Allied unit
-                        
-                        // checks that the unit is on the board during the start turn and that it is a German unit.
-                        if (unit._startTurn <= turn && unit._army === 'German') {
-                            // displays the German unit.
-                            
-                            displayGerman(x, y, unit._id)
-
-                        }
-                        // Offsets the unit if there is another unit already on the area.
-                        x += 20
-                        y += 20
+                    console.log(area._centerX, area._centerY, unit._id)
+                    if (unit._startTurn === 1 && unit._army === "German") {
+                        displayGerman(area._centerX, area._centerY, unit._id)
                     }
                 }
             }
-	    function highlightFriendly(coords, highlightColor = LIGHT_GREY) {
+            let turn = 1
 
-      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+            //loops to get _centerX and _centerY and assigns value to x and y.
+            for (let area of game._allAreas) {
+                let x = area._centerX
+                let y = area._centerY
 
-      // get ready to draw
-      highlightsContext.beginPath()
-      highlightsContext.lineWidth = 0.1
+                //loops through _allUnits		
+                for (let unit of area._allUnits) {
+                    console.log(area._centerX, area._centerY, unit._id)
+                    // checks that the unit is on the board during the start turn and that it is an Allied unit
 
-      // starting point
-      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+                    // checks that the unit is on the board during the start turn and that it is a German unit.
+                    if (unit._startTurn <= turn && unit._army === 'German') {
+                        // displays the German unit.
 
-      // for all the border points
-      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-        // draw a line to each point
-        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-      }
-      // final line goes back to first point
-      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+                        displayGerman(x, y, unit._id)
 
-      //// finish up the drawing
-      highlightsContext.fillStyle = highlightColor
-      highlightsContext.closePath()
-      highlightsContext.fill()
-      highlightsContext.stroke()
-    }
-    
-    function highlightEneamy(coords, highlightColor = LIGHT_PURPLE) {
-
-      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
-
-      // get ready to draw
-      highlightsContext.beginPath()
-      highlightsContext.lineWidth = 0.1
-
-      // starting point
-      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
-
-      // for all the border points
-      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-        // draw a line to each point
-        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-      }
-      // final line goes back to first point
-      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
-
-      //// finish up the drawing
-      highlightsContext.fillStyle = highlightColor
-      highlightsContext.closePath()
-      highlightsContext.fill()
-      highlightsContext.stroke()
-    }		
-			
-          
-			
-			
-
-    function displayArrow(mapX, mapY, unitIndex) {
-      arrowsContext.drawImage(arrowImage,
-      ARROW_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
-      ARROW_IMAGE_WIDTH, ARROW_IMAGE_HEIGHT, // width and height of unit image
-      mapX, mapY, // draw position
-      ARROW_DISPLAY_WIDTH, ARROW_DISPLAY_HEIGHT) // draw width and height
-    }
-	
-	    function displayAllied(mapX, mapY, unitIndex) {
-      unitsContext.drawImage(alliedImage,
-        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
-        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
-        mapX, mapY, // draw position
-        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
-    }
-	
-    function displayGerman(mapX, mapY, unitIndex) {
-      unitsContext.drawImage(germanImage,
-        UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
-        UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
-        mapX, mapY, // draw position
-        UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
-    }
-	
-	    function displayAttackOptions(id) {
-      let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
-      for(let area of eneamyNeighbours){
-        let coords = document.getElementById(area._id).coords
-        highlightEneamy(coords)
-      }
-              
-    }
-	
-	    function displayMoveOptions(id) {
-      let friendlyNeighbours = game.findAdjacentFriendlyAreas(id)
-      for(let area of friendlyNeighbours){
-        let coords = document.getElementById(area._id).coords
-        highlightFriendly(coords)
-      }
-              
-    }
-	
-	function displayAttacks(areaId){
-		let allArrowCoords = game.findAttackArrows(areaId)
-		for (let arrowCoords of allArrowCoords){
-			displayArrow(arrowCoords[0], arrowCoords[1], arrowCoords[2])
-		}
-
-	}
-	
-
-    function areaClickHandler(event) {
-      // NOTE: the same handler can be used for many areas
-      // event.target is the area of the map that was clicked
-      console.log(event.target.id, event.target.coords)
-      // NOTE: without this clicking again shades an area deeper
-      // and previous clicked areas remain shaded
-      //clearHighlights()
-      // just use the area coords to draw the highlight
-      // no 2nd parameter so uses default pale orange colour
-      highlightArea(event.target.coords)
-      // a global variable is used to track the just clicked on  area
-      selectedArea = event.target.id
-    }
-	
-	function highlightControler() {
-                for (let area of game._allAreas) {
-                    console.log(area._control)
-                    let id = area._id
-                    let coords = document.getElementById(id).coords
-                    if (area._control === "German") {
-                        highlightArea(coords, GERMAN_COLOUR)
                     }
-                    else {
-                        highlightArea(coords, ALLIED_COLOUR)
-                    }
-                    //highlightArea(coords)
+                    // Offsets the unit if there is another unit already on the area.
+                    x += 20
+                    y += 20
                 }
             }
-			
-let clock = new Clock()
-console.log(clock.turn)
-console.log(clock.date)
-console.log(clock.specialRules)
-console.log(clock.description)
+        }
+        function highlightFriendly(coords, highlightColor = LIGHT_GREY) {
 
-    //attachs click to map of ALL areas
-    function loadHandler() {
-      mapMap.addEventListener('click', areaClickHandler, false)
-	  highlightControler()
-      //displayArrow(340,470,0)
-      //displayArrow(510,100,1)
-      //displayArrow(420,440,2)
-      //displayArrow(475,320,3)
-	  let turn = 1
-	  for (let area of game._allAreas){
-		let x = area._centerX
-		let y = area._centerY
-		for(unit of area._allUnits){	
-      
-			console.log(area._centerX, area._centerY, unit._id)
-			if (unit._startTurn <= turn && unit._army === "Allied"){
-				displayAllied(x, y, unit._id)
-			}
-			if(unit._startTurn <= turn && unit._army === "German"){
-				displayGerman(x, y, unit._id)
-			}
-			x += 20
-			y += 20
-		}
-	  }
-    }
+            const borderPointsArray = coords.split(',').map(element => { return Number(element) })
 
-    window.onload = loadHandler
+            // get ready to draw
+            highlightsContext.beginPath()
+            highlightsContext.lineWidth = 0.1
+
+            // starting point
+            highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+            // for all the border points
+            for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                // draw a line to each point
+                highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+            }
+            // final line goes back to first point
+            highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+            //// finish up the drawing
+            highlightsContext.fillStyle = highlightColor
+            highlightsContext.closePath()
+            highlightsContext.fill()
+            highlightsContext.stroke()
+        }
+        
+
+
+        function highlightEneamy(coords, highlightColor = LIGHT_PURPLE) {
+
+            const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+            // get ready to draw
+            highlightsContext.beginPath()
+            highlightsContext.lineWidth = 0.1
+
+            // starting point
+            highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+            // for all the border points
+            for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                // draw a line to each point
+                highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+            }
+            // final line goes back to first point
+            highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+            //// finish up the drawing
+            highlightsContext.fillStyle = highlightColor
+            highlightsContext.closePath()
+            highlightsContext.fill()
+            highlightsContext.stroke()
+        }
+
+
+
+
+
+        function displayArrow(mapX, mapY, unitIndex) {
+            arrowsContext.drawImage(arrowImage,
+                ARROW_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+                ARROW_IMAGE_WIDTH, ARROW_IMAGE_HEIGHT, // width and height of unit image
+                mapX, mapY, // draw position
+                ARROW_DISPLAY_WIDTH, ARROW_DISPLAY_HEIGHT) // draw width and height
+        }
+
+        function displayAllied(mapX, mapY, unitIndex) {
+            unitsContext.drawImage(alliedImage,
+                UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+                UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+                mapX, mapY, // draw position
+                UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+        }
+
+        function displayGerman(mapX, mapY, unitIndex) {
+            unitsContext.drawImage(germanImage,
+                UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+                UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+                mapX, mapY, // draw position
+                UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+        }
+
+        function displayAttackOptions(id) {
+            let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
+            for (let area of eneamyNeighbours) {
+                let coords = document.getElementById(area._id).coords
+                highlightEneamy(coords)
+            }
+
+        }
+
+        function displayMoveOptions(id) {
+            let friendlyNeighbours = game.findAdjacentFriendlyAreas(id)
+            for (let area of friendlyNeighbours) {
+                let coords = document.getElementById(area._id).coords
+                highlightFriendly(coords)
+            }
+
+        }
+        
+        function hightlightUnitAreas(allOrigins){
+          let allOrigins = game.findUnitsAreas(allOrigins)
+          for (let origin of allOrigins){
+            let coords = document.getElementById(origin)          
+            highlightArea(coords)
+            }
+        }
+
+        function displayAttacks(areaId) {
+            let allArrowCoords = game.findAttackArrows(areaId)
+            for (let arrowCoords of allArrowCoords) {
+                displayArrow(arrowCoords[0], arrowCoords[1], arrowCoords[2])
+            }
+
+        }
+
+
+        function areaClickHandler(event) {
+            // NOTE: the same handler can be used for many areas
+            // event.target is the area of the map that was clicked
+            console.log(event.target.id, event.target.coords)
+            // NOTE: without this clicking again shades an area deeper
+            // and previous clicked areas remain shaded
+            //clearHighlights()
+            // just use the area coords to draw the highlight
+            // no 2nd parameter so uses default pale orange colour
+            highlightArea(event.target.coords)
+            // a global variable is used to track the just clicked on  area
+            selectedArea = event.target.id
+        }
+
+        function highlightControler() {
+            for (let area of game._allAreas) {
+                console.log(area._control)
+                let id = area._id
+                let coords = document.getElementById(id).coords
+                if (area._control === "German") {
+                    highlightArea(coords, GERMAN_COLOUR)
+                }
+                else {
+                    highlightArea(coords, ALLIED_COLOUR)
+                }
+                //highlightArea(coords)
+            }
+        }
+
+
+
+        //attachs click to map of ALL areas
+        function loadHandler() {
+            mapMap.addEventListener('click', areaClickHandler, false)
+            highlightControler()
+            //displayArrow(340,470,0)
+            //displayArrow(510,100,1)
+            //displayArrow(420,440,2)
+            //displayArrow(475,320,3)
+            let turn = 1
+            for (let area of game._allAreas) {
+                let x = area._centerX
+                let y = area._centerY
+                for (unit of area._allUnits) {
+
+                    console.log(area._centerX, area._centerY, unit._id)
+                    if (unit._startTurn <= turn && unit._army === "Allied") {
+                        displayAllied(x, y, unit._id)
+                    }
+                    if (unit._startTurn <= turn && unit._army === "German") {
+                        displayGerman(x, y, unit._id)
+                    }
+                    x += 20
+                    y += 20
+                }
+            }
+        }
+
+        window.onload = loadHandler
 
   </script>
 </body>
