@@ -1,0 +1,60 @@
+* {
+    font-family: Helvetica, sans-serif
+}
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background-color: #d3cdc9;
+    overscroll-behavior: none;
+    height: 100%
+}
+
+img,
+div,
+p {
+    user-select: none
+}
+
+/*
+#map-image, #highlights_canvas {
+    margin-top: 30px;
+    position: absolute;
+    top: 30px;
+    left: 30px
+}
+*/
+#highlights_canvas
+{
+    pointer-events: none;       
+    /* make the canvas transparent to the mouse - 
+    needed since canvas is position in front of image */
+    position:absolute;
+    z-index: 2;
+}
+
+#units_canvas
+{
+    pointer-events: none;       
+    /* make the canvas transparent to the mouse - 
+    needed since canvas is position in front of image */
+    position:absolute;
+    z-index: 3;
+}
+
+#german_canvas
+{
+	pointer-events: none;
+	position:absolute;
+	z-index: 4;
+}
+
+#arrow_canvas
+{
+    pointer-events: none;       
+    /* make the canvas transparent to the mouse - 
+    needed since canvas is position in front of image */
+    position:absolute;
+    z-index: 5;
+}

@@ -12,9 +12,11 @@
     <script src="./js/movement.js"></script>
     <script src="./js/unitSetUp.js"></script>
     <script src="./js/arrows.js"></script>
+    
   </head>
 
   <body>
+
     <canvas id="highlights_canvas"></canvas>
     <canvas id="arrow_canvas"></canvas>
     <canvas id="units_canvas"></canvas>
@@ -263,7 +265,7 @@
       const SOUTHWEST = 5;
       const WEST = 6;
       const NORTHWEST = 7;
-
+      
       var arrowImage = document.getElementById("attack_arrow");
       var arrowCanvas = document.getElementById("arrow_canvas");
       var arrowsContext = arrowCanvas.getContext("2d");
@@ -278,6 +280,7 @@
       arrowCanvas.height = document.getElementById("map_image").height;
       highlightsCanvas.width = document.getElementById("map_image").width;
       highlightsCanvas.height = document.getElementById("map_image").height;
+
 
       /* !! fixed BUG.. 
         // without the following the canvas will capture the mouse events from the map of areas
@@ -543,7 +546,7 @@
         ["C3", [350, 255, EAST]],
         ["C4", [270, 320, SOUTH]],
         ["B2", [280, 260, WEST]],
-      ]);
+      ]);      
       game.addAttackArrows("C3", [
         ["C1", [435, 115, NORTH]],
         ["D1", [465, 190, NORTHEAST]],
@@ -611,6 +614,7 @@
         ["E2", [620, 410, NORTH]],
       ]);
 
+      
       function areaClickHandler(event) {
         // NOTE: the same handler can be used for many areas
         // event.target is the area of the map that was clicked
@@ -645,9 +649,9 @@
             y += 20;
           }
         }
-      }
+      }      
 
-      //window.onload = loadHandler
+       //window.onload = loadHandler
     </script>
   </body>
 </html>

@@ -2,22 +2,27 @@
 <html lang="en">
 
 <head>
-  <title>Area Selection and Highlight Demo v2</title>
-  <link rel="stylesheet" type="text/css" href="map.css" />
+    <title>Neighbour Selection and Highlight Demo </title>
+    <link rel="stylesheet" type="text/css" href="map.css" />
 </head>
 
 <body>
-  <!--
+    <!--
 <img id="map_image" src="map.png" usemap="#map_map" width="800" height="800" alt="Villers_Map">
 Image seems to be offset from the defined area
 -->
 
-  <canvas id="highlights_canvas"></canvas>
+    <canvas id="highlights_canvas"></canvas>
+    <canvas id="units_canvas"></canvas>
 
-  <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">
+    <img id="allied_image" src="AlliedCounters.png" alt="Allied Counters" style="display: none;">
+    <img id="german_image" src="GermanCounters.png" alt="German Counters" style="display: none;">
+    <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">
 
-  <map id="map_map" name="map_map">
-    <area id="A1" target="" alt="A1" title="A1" href="#"
+
+    <map id="map_map" name="map_map">
+        <map name="image-map">
+            <area id="A1" target="" alt="A1" title="A1" href="#"
                 coords="11,48,38,47,51,68,66,81,83,90,106,98,128,99,160,101,188,101,180,128,172,154,171,178,169,199,168,213,168,226,145,227,131,227,96,229,65,229,42,230,26,231,10,233"
                 shape="poly">
             <area id="A2" target="" alt="A2" title="A2" href="#"
@@ -74,18 +79,19 @@ Image seems to be offset from the defined area
             <area id="E3" target="" alt="E3" title="E3" href="#"
                 coords="604,464,769,498,773,708,558,708,567,683,568,661,568,640,555,623,530,609,505,596,530,582,550,566,566,555,577,530"
                 shape="poly">
-  </map>
+        </map>
 
 
 
-  <script>
+        <script>
+            /* eslint quotes: ["error", "single"] */
+            /* eslint semi: ["error", "never"] */
+            /* eslint no-unused-vars: "error" */
+            /* globals document console window */
+            /* exported PALE_ORANGE LIGHT_GREY LIGHT_PURPLE highlightArea selectedArea */
 
-    /* eslint quotes: ["error", "single"] */
-    /* eslint semi: ["error", "never"] */
-    /* eslint no-unused-vars: "error" */
-    /* globals document console window */
-    
-    class Unit {
+
+            class Unit {
                 constructor(id, name, army, training, branch, startTurn, startPosition) {
                     this._id = id
                     this._name = name
@@ -116,7 +122,6 @@ Image seems to be offset from the defined area
                 constructor(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = '') {
                     this._allNeighbours = []
                     this._allUnits = []
-                    this._allAttackArrows = []
                     this._id = id
                     this._terrain = terrain
                     this._canSupplyAllies = canSupplyAllied
@@ -144,11 +149,6 @@ Image seems to be offset from the defined area
                 addNeighbour(aNeighbour) {
                     this._allNeighbours.push(aNeighbour)
                 }
-                
-                addAttackArrow(anAttackArrow){
-                  this._allAttackArrows.push(anAttackArrow)
-                }
-     
             }
             class Game {
                 constructor() {
@@ -207,50 +207,18 @@ Image seems to be offset from the defined area
                     }
                     else{
                     eneamy = 'Allied'
-                    }                   
+                    }
+                    
                     
                     for (let neighbourArea of targetArea._allNeighbours) {
                       //const neighbourArea = this._allAreas.find(area => area._id === areaID)
-                        if(neighbourArea._control === eneamy){                          
+                        if(neighbourArea._control === eneamy){
+                          
                           result.push(neighbourArea) 
                         }
                     }
                     return result
                 }
-                
-                findAdjacentFriendlyAreas(targetAreaId) {
-                    let result = []
-                    const targetArea = this._allAreas.find(area => area._id === targetAreaId)
-                    var eneamy 
-                    if(targetArea._control === 'Allied'){
-                    eneamy = 'Allied'
-                    }
-                    else{
-                    eneamy = 'German'
-                    }                   
-                    
-                    for (let neighbourArea of targetArea._allNeighbours) {
-                      //const neighbourArea = this._allAreas.find(area => area._id === areaID)
-                        if(neighbourArea._control === eneamy){                          
-                          result.push(neighbourArea) 
-                        }
-                    }
-                    return result
-                }
-                
-                 findAttackArrows(targetAreaId){
-                    let result = []
-                    const attackArea = this._allAreas.find(area => area._id === targetAreaId)
-                    var enemy 
-
-                    for (let arrowAttackArea of attackArea._allAttackArrows) {
-                      
-                        if(arrowAttackArea._control === eneamy){                          
-                          result.push(arrowAttackArea) 
-                        }
-                    }
-                    return result
-                  }
 
                 addNeighbours(targetAreaId, allNeighbourIds) {
                     const targetArea = this._allAreas.find(area => area._id === targetAreaId)
@@ -259,22 +227,9 @@ Image seems to be offset from the defined area
                         targetArea.addNeighbour(neighbourArea)
                     }
                 }
-                
-                addAttackArrows(attackAreaId, allNeighbourIds){
-                    const attackArea = this._allAreas.find(area => area._id === attackAreaId)
-                    for (let arrowAttackAreaId of allNeighbourIds){
-                      const arrowAttackArea = this._allAreas.find(area => area._id === arrowAttackAreaId)
-                      attackArea.addAttackArrow(arrowAttackArea)      
-                    }
-                 }
 
             }
 
-                const NORTH = 0
-                const EAST = 1
-                const SOUTH = 2
-                const WEST = 3
-  
             let game = new Game()
 
             game.addArea('A1', 'open', true, false, 'Allied', 60, 124)
@@ -301,7 +256,7 @@ Image seems to be offset from the defined area
             game.addNeighbours('A1', ['B1', 'A2'])
             game.addNeighbours('A2', ['A1', 'B1', 'B2', 'B3', 'A3'])
             game.addNeighbours('A3', ['A2', 'B3', 'B5'])
-            game.addNeighbours('B1', ['A1', 'A2', 'B2', 'C2', 'C1'])
+            game.addNeighbours('B1', ['A1', 'A2', 'B4', 'C2', 'C1'])
             game.addNeighbours('B2', ['B1', 'C2', 'C4', 'B3', 'A2'])
             game.addNeighbours('B3', ['B2', 'C4', 'B4', 'B5', 'A3', 'A2'])
             game.addNeighbours('B4', ['B3', 'C4', 'D3', 'C5', 'B5'])
@@ -313,10 +268,10 @@ Image seems to be offset from the defined area
             game.addNeighbours('C5', ['B4', 'D3', 'D4', 'B5'])
             game.addNeighbours('D1', ['E1', 'E2', 'D2', 'C3', 'C1'])
             game.addNeighbours('D2', ['D1', 'E2', 'E3', 'D3', 'C4', 'C3'])
-            game.addNeighbours('D3', ['C4', 'D2', 'B4', 'E3', 'D4', 'C5'])
+            game.addNeighbours('D3', ['C4', 'D2', 'E3', 'D4', 'C5'])
             game.addNeighbours('D4', ['C5', 'D3', 'E3'])
             game.addNeighbours('E1', ['D1', 'E2'])
-            game.addNeighbours('E2', ['D1', 'D2', 'E1', 'E3'])
+            game.addNeighbours('E2', ['D1', 'D2', 'E3'])
             game.addNeighbours('E3', ['D4', 'D3', 'D2', 'E2'])
 
             //Allied units
@@ -347,28 +302,6 @@ Image seems to be offset from the defined area
             game.addUnit(9, 'Group III Steinhardt', 'German', 'Trained', 'A7V tanks', 1, 'D3')
             game.addUnit(10, 'MG Abt 228', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
             game.addUnit(11, 'MG Abt 4G', 'German', 'Veteran', 'HMG', 2, 'Any German controlled area')
-            
-            game.addAttackArrows('A1', [('B1', [110, 100, EAST]), ('A2', [20,160,SOUTH])])
-            game.addAttackArrows('A2', [('A1', [20, 160, NORTH]), ('B1', [120,160,NORTH]), ('B2', [125,250,EAST]), ('B3', [120,350,SOUTH]), ('A3', [20,360,SOUTH])])
-            game.addAttackArrows('A3', [('A2', [20, 350, NORTH]), ('B3', [80,410,EAST]), ('B5', [80,560,EAST])])
-            game.addAttackArrows('B1', [('A1', [100, 60, WEST]), ('A2', [115, 190, SOUTH]), ('B2', [190, 190, SOUTH]),  ('C2', [280, 155, EAST]),  ('C1', [280, 60, EAST])])
-            game.addAttackArrows('B2', [('B1', [195, 175, NORTH]), ('C2', [270, 230, EAST]), ('C4', [240, 310, SOUTH]),  ('B3', [160, 325, SOUTH]),  ('A2', [100, 230, WEST])])
-            game.addAttackArrows('B3', [('B2', [180, 320, NORTH]), ('C4', [250, 390, EAST]), ('B4', [190, 430, SOUTH]),  ('B5', [135, 495, SOUTH]),  ('A3', [80, 420, WEST]),  ('A2', [110, 330, NORTH])])
-            game.addAttackArrows('B4', [('B3', [195, 430, WEST]), ('C4', [270, 430, NORTH]), ('D3', [280, 470, EAST]), ('C5', [245, 520, EAST]), ('B5', [155, 535, SOUTH])])
-            game.addAttackArrows('B5', [('A3', [ 70, 590, WEST]), ('B3', [140, 500, NORTH]), ('B4', [200, 530, NORTH]), ('C5', [230, 590, EAST])])
-            game.addAttackArrows('C1', [('D1', [480, 40, EAST]), ('C3', [430, 130, SOUTH]), ('C2', [360, 130, SOUTH]), ('B1', [290, 50, WEST])])
-            game.addAttackArrows('C2', [('B1', [280, 140, WEST]), ('C1', [360, 120, NORTH]), ('C3', [350, 255, EAST]), ('C4', [270, 320, SOUTH]), ('B2', [280, 140, WEST])])
-            game.addAttackArrows('C3', [('C1', [435, 115, NORTH]), ('D1', [465, 190, EAST]), ('D2', [450, 295, EAST]), ('C4', [370, 330, SOUTH]), ('C2', [360, 235, WEST])])
-            game.addAttackArrows('C4', [('B2', [270, 340, WEST]), ('C2', [290, 340, NORTH]), ('C3', [400, 350, NORTH]), ('D2', [430, 375, EAST]), ('D3', [370, 430, SOUTH]), ('B4', [230, 400, SOUTH]), ('B3', [220, 385, WEST])])
-            game.addAttackArrows('C5', [('B4', [250, 495, WEST]), ('D3', [330, 520, NORTH]), ('D4', [350, 595, EAST]), ('B5', [ 220, 595, WEST])])
-            game.addAttackArrows('D1', [('E1', [590, 40, EAST]), ('E2', [600, 200, EAST]), ('D2', [500, 250, SOUTH]), ('C3', [485, 185, WEST]), ('C1', [480, 85, WEST])])
-            game.addAttackArrows('D2', [('D1', [510, 200, NORTH]), ('E2', [570, 300, EAST]), ('E3', [530, 415, EAST]), ('D3', [470, 400, SOUTH]), ('C4', [430, 390, WEST]), ('C3', [445, 285, WEST])])
-            game.addAttackArrows('D3', [('C4', [370, 450, NORTH]), ('D2', [490, 380, NORTH]), ('B4', [270, 460, WEST]), ('E3', [500, 475, EAST]), ('D4', [410, 530, SOUTH]), ('C5', [315, 520, SOUTH])])
-            game.addAttackArrows('D4', [('C5', [350, 575, WEST]), ('D3', [410, 520, NORTH]), ('E3', [500, 575, EAST])])
-            game.addAttackArrows('E1', [('D1', [575, 55, WEST]), ('E2', [630, 180, SOUTH])])
-            game.addAttackArrows('E2', [('D1', [575, 190, WEST]), ('D2', [560, 300, WEST]), ('E1', [640, 140, NORTH]), ('E3', [630, 420, SOUTH])])
-            game.addAttackArrows('E3', [('D4', [480, 580, WEST]), ('D3', [470, 475, WEST]), ('D2', [545, 395, WEST]), ('E2', [620, 410, NORTH])])
-
 
 
 
@@ -381,159 +314,122 @@ Image seems to be offset from the defined area
             console.log(game.reportGermanUnits())
 
 
-    const PALE_ORANGE = 'rgba(255, 165, 0, 0.3)'
-    const LIGHT_GREY = "rgb(0, 0, 0, 0.4)"
-    const LIGHT_PURPLE = "rgba(0, 0, 255, 0.25)"
+            //var selectedArea = undefined
+
+            const PALE_ORANGE = 'rgba(255, 165, 0, 0.3)'
+            const LIGHT_GREY = 'rgb(0, 0, 0, 0.4)'
+            const LIGHT_PURPLE = 'rgba(0, 0, 255, 0.25)'
+            const GERMAN_COLOUR = 'rgba(102, 128, 153, 0.3)'
+            const ALLIED_COLOUR = 'rgba(255, 0, 0, 0.3)'
+
+            var mapMap = document.getElementById('map_map')
+            var highlightsCanvas = document.getElementById('highlights_canvas')
+            var highlightsContext = highlightsCanvas.getContext('2d')
 
 
-    var selectedArea = undefined
+            const UNIT_DISPLAY_WIDTH = 50
+            const UNIT_DISPLAY_HEIGHT = 50
+            const UNIT_IMAGE_WIDTH = 100
+            const UNIT_IMAGE_HEIGHT = 100
 
-    var mapMap = document.getElementById('map_map')
-    var highlightsCanvas = document.getElementById('highlights_canvas')
-    var highlightsContext = highlightsCanvas.getContext('2d')
+            var germanImage = document.getElementById('german_image')
+            var alliedImage = document.getElementById('allied_image')
+            var unitsCanvas = document.getElementById('units_canvas')
+            var unitsContext = unitsCanvas.getContext('2d')
 
-    /* !! fixed BUG.. 
-    // without the following the canvas will capture the mouse events from the map of areas
-    // SOLUTION
-    // put a tranparent canvas on top of image and disable mouse stuff
-    // from https://stackoverflow.com/questions/27587532/image-map-and-canvas
-    // aslo see https://www.w3schools.com/cssref/pr_pos_z-index.asp
-        // the following is in map.css
-        #highlights_canvas  {
-          pointer-events: none;       
-          position:absolute;
-          z-index: 2;
-        }
-    */
-    highlightsCanvas.width = document.getElementById('map_image').width
-    highlightsCanvas.height = document.getElementById('map_image').height
+            unitsCanvas.width = document.getElementById('map_image').width
+            unitsCanvas.height = document.getElementById('map_image').height
+            highlightsCanvas.width = document.getElementById('map_image').width
+            highlightsCanvas.height = document.getElementById('map_image').height
 
-    function highlightArea(coords, highlightColor = PALE_ORANGE) {
+         
+            function clearHighlights() {
+                highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+            }
 
-      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+            function displayAllied(mapX, mapY, unitIndex) {
+                unitsContext.drawImage(alliedImage,
+                    UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+                    UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+                    mapX, mapY, // draw position
+                    UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+            }
 
-      // get ready to draw
-      highlightsContext.beginPath()
-      highlightsContext.lineWidth = 0.1
+            function displayGerman(mapX, mapY, unitIndex) {
+                unitsContext.drawImage(germanImage,
+                    UNIT_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+                    UNIT_IMAGE_WIDTH, UNIT_IMAGE_HEIGHT, // width and height of unit image
+                    mapX, mapY, // draw position
+                    UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
+            }
 
-      // starting point
-      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+           
+            function highlightArea(coords, highlightColor = PALE_ORANGE) {
 
-      // for all the border points
-      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-        // draw a line to each point
-        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-      }
-      // final line goes back to first point
-      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+                const borderPointsArray = coords.split(',').map(element => { return Number(element) })
 
-      //// finish up the drawing
-      highlightsContext.fillStyle = highlightColor
-      highlightsContext.closePath()
-      highlightsContext.fill()
-      highlightsContext.stroke()
-    }
-    
-    function highlightFriendly(coords, highlightColor = LIGHT_GREY) {
+                // get ready to draw
+                highlightsContext.beginPath()
+                highlightsContext.lineWidth = 0.1
 
-      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+                // starting point
+                highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
 
-      // get ready to draw
-      highlightsContext.beginPath()
-      highlightsContext.lineWidth = 0.1
+                // for all the border points
+                for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                    // draw a line to each point
+                    highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+                }
+                // final line goes back to first point
+                highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
 
-      // starting point
-      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
-
-      // for all the border points
-      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-        // draw a line to each point
-        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-      }
-      // final line goes back to first point
-      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
-
-      //// finish up the drawing
-      highlightsContext.fillStyle = highlightColor
-      highlightsContext.closePath()
-      highlightsContext.fill()
-      highlightsContext.stroke()
-    }
-    
-    function highlightEneamy(coords, highlightColor = LIGHT_PURPLE) {
-
-      const borderPointsArray = coords.split(',').map(element => { return Number(element) })
-
-      // get ready to draw
-      highlightsContext.beginPath()
-      highlightsContext.lineWidth = 0.1
-
-      // starting point
-      highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
-
-      // for all the border points
-      for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
-        // draw a line to each point
-        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
-      }
-      // final line goes back to first point
-      highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
-
-      //// finish up the drawing
-      highlightsContext.fillStyle = highlightColor
-      highlightsContext.closePath()
-      highlightsContext.fill()
-      highlightsContext.stroke()
-    }
-
-    // see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
-    function clearHighlights() {
-      highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
-    }
-
-    function displayAttackOptions(id) {
-      let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
-      for(let area of eneamyNeighbours){
-        let coords = document.getElementById(area._id).coords
-        highlightEneamy(coords)
-      }
+                //// finish up the drawing
+                highlightsContext.fillStyle = highlightColor
+                highlightsContext.closePath()
+                highlightsContext.fill()
+                highlightsContext.stroke()
+            }
+            
+            function highlightEneamyNeighbour(id) {
+              let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
+              for(let area of eneamyNeighbours){
+                let coords = document.getElementById(area._id).coords
+                highlightArea(coords)
+              }
               
-    }
-    
-    function displayMoveOptions(id) {
-      let friendlyNeighbours = game.findAdjacentFriendlyAreas(id)
-      for(let area of friendlyNeighbours){
-        let coords = document.getElementById(area._id).coords
-        highlightFriendly(coords)
-      }
-              
-    }
+            }          
 
-    function areaClickHandler(event) {
-      // NOTE: the same handler can be used for many areas
-      // event.target is the area of the map that was clicked
-      console.log(event.target.id, event.target.coords)
-      // NOTE: without this clicking again shades an area deeper
-      // and previous clicked areas remain shaded
-      //clearHighlights()
-      // just use the area coords to draw the highlight
-      // no 2nd parameter so uses default pale orange colour
-      highlightArea(event.target.coords)
-      // a global variable is used to track the just clicked on  area
-      selectedArea = event.target.id
-      document.getElementById("C3").removeEventListener('click', areaClickHandler, false)
-      document.getElementById("C4").removeEventListener('click', areaClickHandler, false)
-    }
+            function clearHighlights() {
+                highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+            }
+          
 
-    //attachs click to map of ALL areas
-    function loadHandler() {
-      mapMap.addEventListener('click', areaClickHandler, false)
-      //document.getElementById("C3").addEventListener('click', areaClickHandler, false)
-      //document.getElementById("C4").addEventListener('click', areaClickHandler, false)
-      //displayAttackOptions('D2')
-    }
+            function areaClickHandler(event) {
+                // NOTE: the same handler can be used for many areas
+                // event.target is the area of the map that was clicked
+                console.log(event.target.id, event.target.coords)
+                // NOTE: without this clicking again shades an area deeper
+                // and previous clicked areas remain shaded
+                clearHighlights()
+                // just use the area coords to draw the highlight
+                // no 2nd parameter so uses default pale orange colour
+                highlightArea(event.target.coords)
+                
+                // a global variable is used to track the just clicked on  area
+                selectedArea = event.target.id
+            }
 
-    window.onload = loadHandler
+            
 
-  </script>
+            //attachs click to map of ALL areas
+            function loadHandler() {
+                //mapMap.addEventListener('click', areaClickHandler, false)
+                mapMap.addEventListener('click', areaClickHandler, false)
+                //highlightControler()             
+
+
+            }
+
+            window.onload = loadHandler
+        </script>
 </body>

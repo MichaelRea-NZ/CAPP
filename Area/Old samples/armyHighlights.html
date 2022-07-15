@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Neighbour Selection and Highlight Demo </title>
+    <title>Area Selection and Highlight Who Controlles</title>
     <link rel="stylesheet" type="text/css" href="map.css" />
 </head>
 
@@ -320,7 +320,35 @@ Image seems to be offset from the defined area
             highlightsCanvas.width = document.getElementById('map_image').width
             highlightsCanvas.height = document.getElementById('map_image').height
 
-         
+            /*function highlightArea(coords, shape, highlightColor = ALLIED_COLOUR) {
+        
+                if(shape == 'poly' && game._allAreas._control === "Allied"){
+                    const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+        
+                    // get ready to draw
+                    highlightsContext.beginPath()
+                    highlightsContext.lineWidth = 0.1
+        
+                    // starting point
+                    highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+        
+                    // for all the border points
+                    for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                    // draw a line to each point
+                        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+                    }
+                    // final line goes back to first point
+                    highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+        
+                    // finish up the drawing
+                    highlightsContext.fillStyle = highlightColor
+                    highlightsContext.closePath()
+                    highlightsContext.fill()
+                    highlightsContext.stroke()
+                }
+              
+            }*/
+
             function clearHighlights() {
                 highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
             }
@@ -341,7 +369,10 @@ Image seems to be offset from the defined area
                     UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT) // draw width and height
             }
 
-           
+            //function clearUnit(mapX, mapY) {
+            //unitsContext.clearRect(mapX, mapY, UNIT_DISPLAY_WIDTH, UNIT_DISPLAY_HEIGHT);
+            //}
+
             function highlightArea(coords, highlightColor = PALE_ORANGE) {
 
                 const borderPointsArray = coords.split(',').map(element => { return Number(element) })
@@ -367,11 +398,14 @@ Image seems to be offset from the defined area
                 highlightsContext.fill()
                 highlightsContext.stroke()
             }
-            
-            function highlightAlliedNeighbour(coords, shape, highlightColor = LIGHT_PURPLE) {
-              for (let area of game._allAreas){
-                if (shape == 'poly' && game._allAreas._control === "Allied"){
-                  const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+            function clearHighlights() {
+                highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+            }
+
+            /*function highlightAllied(coords, shape, highlightColor = ALLIED_COLOUR) {
+                if (shape == 'poly' && game._allAreas._control === "Allied") {
+                    const borderPointsArray = coords.split(',').map(element => { return Number(element) })
 
                     // get ready to draw
                     highlightsContext.beginPath()
@@ -388,18 +422,162 @@ Image seems to be offset from the defined area
                     // final line goes back to first point
                     highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
 
-                    //// finish up the drawing
+                    // finish up the drawing
                     highlightsContext.fillStyle = highlightColor
                     highlightsContext.closePath()
                     highlightsContext.fill()
                     highlightsContext.stroke()
-               }
-            }          
+                }
+            }*/
 
-            function clearHighlights() {
-                highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
+
+            function defaultSetUp() {
+                for (let unit of game._allUnits) {
+                    let areaName = unit._startPosition
+                    console.log(unit)
+                    let area = game._allAreas.find(area => area._id === unit._startPosition)
+                    if (area) {
+
+                        console.log(area._centerX, area._centerY, unit._id)
+                        if (unit._army === "Allied") {
+                            displayAllied(area._centerX, area._centerY, unit._id)
+                        }
+                        if (unit._startTurn === 1 && unit._army === "German") {
+                            displayGerman(area._centerX, area._centerY, unit._id)
+                        }
+                    }
+                }
+                let turn = 1
+
+                //loops to get _centerX and _centerY and assigns value to x and y.
+                for (let area of game._allAreas) {
+                    let x = area._centerX
+                    let y = area._centerY
+
+                    //loops through _allUnits		
+                    for (let unit of area._allUnits) {
+                        console.log(area._centerX, area._centerY, unit._id)
+                        // checks that the unit is on the board during the start turn and that it is an Allied unit
+                        if (unit._startTurn <= turn && unit._army === 'Allied') {
+                            console.log('Testing Allied')
+                            // displays the Allied unit
+                            displayAllied(x, y, unit._id)
+                        }
+                        // checks that the unit is on the board during the start turn and that it is a German unit.
+                        if (unit._startTurn <= turn && unit._army === 'German') {
+                            // displays the German unit.
+                            console.log('Testing German')
+                            displayGerman(x, y, unit._id)
+
+                        }
+                        // Offsets the unit if there is another unit already on the area.
+                        x += 20
+                        y += 20
+                    }
+                }
             }
-          
+
+            function alliedSetUp() {
+                for (let unit of game._allUnits) {
+                    let areaName = unit._startPosition
+                    console.log(unit)
+                    let area = game._allAreas.find(area => area._id === unit._startPosition)
+                    if (area) {
+
+                        console.log(area._centerX, area._centerY, unit._id)
+                        if (unit._army === "Allied") {
+                            displayAllied(area._centerX, area._centerY, unit._id)
+                        }                        
+                    }
+                }
+                let turn = 1
+
+                //loops to get _centerX and _centerY and assigns value to x and y.
+                for (let area of game._allAreas) {
+                    let x = area._centerX
+                    let y = area._centerY
+
+                    //loops through _allUnits		
+                    for (let unit of area._allUnits) {
+                        console.log(area._centerX, area._centerY, unit._id)
+                        // checks that the unit is on the board during the start turn and that it is an Allied unit
+                        if (unit._startTurn <= turn && unit._army === 'Allied') {                            
+                            // displays the Allied unit
+                            displayAllied(x, y, unit._id)
+                        }
+
+                        // Offsets the unit if there is another unit already on the area.
+                        x += 20
+                        y += 20
+                    }
+                }
+            }
+
+            function germanSetUp() {
+                for (let unit of game._allUnits) {
+                    let areaName = unit._startPosition
+                    console.log(unit)
+                    let area = game._allAreas.find(area => area._id === unit._startPosition)
+                    if (area) {
+
+                        console.log(area._centerX, area._centerY, unit._id)                       
+                        if (unit._startTurn === 1 && unit._army === "German") {
+                            displayGerman(area._centerX, area._centerY, unit._id)
+                        }
+                    }
+                }
+                let turn = 1
+
+                //loops to get _centerX and _centerY and assigns value to x and y.
+                for (let area of game._allAreas) {
+                    let x = area._centerX
+                    let y = area._centerY
+
+                    //loops through _allUnits		
+                    for (let unit of area._allUnits) {
+                        console.log(area._centerX, area._centerY, unit._id)
+                        // checks that the unit is on the board during the start turn and that it is an Allied unit
+                        
+                        // checks that the unit is on the board during the start turn and that it is a German unit.
+                        if (unit._startTurn <= turn && unit._army === 'German') {
+                            // displays the German unit.
+                            
+                            displayGerman(x, y, unit._id)
+
+                        }
+                        // Offsets the unit if there is another unit already on the area.
+                        x += 20
+                        y += 20
+                    }
+                }
+            } 
+
+            function highlightGerman(coords, shape, highlightColor = PALE_ORANGE) {
+                if (shape == 'poly') {
+                    const borderPointsArray = coords.split(',').map(element => { return Number(element) })
+
+                    // get ready to draw
+                    highlightsContext.beginPath()
+                    highlightsContext.lineWidth = 0.1
+
+                    // starting point
+                    highlightsContext.moveTo(borderPointsArray[0], borderPointsArray[1])
+
+                    // for all the border points
+                    for (var pointIndex = 2; pointIndex < borderPointsArray.length; pointIndex += 2) {
+                        // draw a line to each point
+                        highlightsContext.lineTo(borderPointsArray[pointIndex], borderPointsArray[pointIndex + 1])
+                    }
+                    // final line goes back to first point
+                    highlightsContext.lineTo(borderPointsArray[0], borderPointsArray[1])
+
+                    // finish up the drawing
+                    highlightsContext.fillStyle = highlightColor
+                    highlightsContext.closePath()
+                    highlightsContext.fill()
+                    highlightsContext.stroke()
+                }
+            }
 
             function areaClickHandler(event) {
                 // NOTE: the same handler can be used for many areas
@@ -415,13 +593,71 @@ Image seems to be offset from the defined area
                 selectedArea = event.target.id
             }
 
-            
+            function highlightControler() {
+                for (let area of game._allAreas) {
+                    console.log(area._control)
+                    let id = area._id
+                    let coords = document.getElementById(id).coords
+                    if (area._control === "German") {
+                        highlightArea(coords, GERMAN_COLOUR)
+                    }
+                    else {
+                        highlightArea(coords, ALLIED_COLOUR)
+                    }
+                    //highlightArea(coords)
+                }
+            }
 
             //attachs click to map of ALL areas
             function loadHandler() {
                 //mapMap.addEventListener('click', areaClickHandler, false)
                 mapMap.addEventListener('click', areaClickHandler, false)
-                //highlightControler()             
+                highlightControler()
+                //clearHighlights()
+
+                /*for (let unit of game._allUnits){
+                  let areaName = unit._startPosition
+                  console.log(unit )
+                  let area = game._allAreas.find(area => area._id === unit._startPosition)
+                  if(area){
+              	
+                      console.log(area._centerX, area._centerY, unit._id)
+                      if (unit._army === "Allied"){
+                          displayAllied(area._centerX, area._centerY, unit._id)
+                      }
+                      if(unit._startTurn === 1 && unit._army === "German"){
+                          displayGerman(area._centerX, area._centerY, unit._id)
+                      }
+                  }
+                }*/
+                /*let turn = 1
+
+                //loops to get _centerX and _centerY and assigns value to x and y.
+                for (let area of game._allAreas) {
+                    let x = area._centerX
+                    let y = area._centerY
+
+                    //loops through _allUnits		
+                    for (let unit of area._allUnits) {
+                        console.log(area._centerX, area._centerY, unit._id)
+                        // checks that the unit is on the board during the start turn and that it is an Allied unit
+                        if (unit._startTurn <= turn && unit._army === 'Allied') {
+                            console.log('Testing Allied')
+                            // displays the Allied unit
+                            displayAllied(x, y, unit._id)
+                        }
+                        // checks that the unit is on the board during the start turn and that it is a German unit.
+                        if (unit._startTurn <= turn && unit._army === 'German') {
+                            // displays the German unit.
+                            console.log('Testing German')
+                            displayGerman(x, y, unit._id)
+
+                        }
+                        // Offsets the unit if there is another unit already on the area.
+                        x += 20
+                        y += 20
+                    }
+                }*/
 
 
             }

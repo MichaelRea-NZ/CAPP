@@ -11,9 +11,11 @@
 <img id="map_image" src="map.png" usemap="#map_map" width="800" height="800" alt="Villers_Map">
 Image seems to be offset from the defined area
 -->
-
+  
   <canvas id="highlights_canvas"></canvas>
-
+  <canvas id="arrow_canvas"></canvas>
+  
+  <img id="attack_arrow" src="arrows2.png" alt="Attack Arrow" style="display: none;">
   <img id="map_image" src="map.png" usemap="#map_map" alt="Map of Villers Bretonneux">
 
   <map id="map_map" name="map_map">
@@ -59,6 +61,18 @@ Image seems to be offset from the defined area
     var mapMap = document.getElementById('map_map')
     var highlightsCanvas = document.getElementById('highlights_canvas')
     var highlightsContext = highlightsCanvas.getContext('2d')
+    
+     //changes the shape of image. More width make image longer. less height skinner.   
+     const ARROW_DISPLAY_WIDTH = 150
+     const ARROW_DISPLAY_HEIGHT = 150
+     //how much of the to display. 
+     const ARROW_IMAGE_WIDTH = 240
+     const ARROW_IMAGE_HEIGHT = 240
+     
+    const NORTH = 0
+    const EAST = 1
+    const SOUTH = 2
+    const WEST = 3
 
     /* !! fixed BUG.. 
     // without the following the canvas will capture the mouse events from the map of areas
@@ -73,6 +87,12 @@ Image seems to be offset from the defined area
           z-index: 2;
         }
     */
+    var arrowImage = document.getElementById('attack_arrow')
+    var arrowCanvas = document.getElementById('arrow_canvas')
+    var arrowsContext = arrowCanvas.getContext('2d')
+    
+    arrowCanvas.width = document.getElementById('map_image').width
+    arrowCanvas.height = document.getElementById('map_image').height
     highlightsCanvas.width = document.getElementById('map_image').width
     highlightsCanvas.height = document.getElementById('map_image').height
 
@@ -107,7 +127,13 @@ Image seems to be offset from the defined area
       highlightsContext.clearRect(0, 0, highlightsCanvas.width, highlightsCanvas.height)
     }
 
-
+    function displayArrow(mapX, mapY, unitIndex) {
+      arrowsContext.drawImage(arrowImage,
+      ARROW_IMAGE_WIDTH * unitIndex, 0, // position of top/left unit image in line of images
+      ARROW_IMAGE_WIDTH, ARROW_IMAGE_HEIGHT, // width and height of unit image
+      mapX, mapY, // draw position
+      ARROW_DISPLAY_WIDTH, ARROW_DISPLAY_HEIGHT) // draw width and height
+    }
 
     function areaClickHandler(event) {
       // NOTE: the same handler can be used for many areas
@@ -126,6 +152,17 @@ Image seems to be offset from the defined area
     //attachs click to map of ALL areas
     function loadHandler() {
       mapMap.addEventListener('click', areaClickHandler, false)
+      displayArrow(620,410,NORTH)
+      //displayArrow(410,520,NORTH)
+      //displayArrow(195,175,NORTH)
+      //displayArrow(500,575,EAST)
+      //displayArrow(570,300,EAST)
+      //displayArrow(410,530,SOUTH)
+      //displayArrow(630,420,SOUTH)
+      //displayArrow(230,400,SOUTH)
+      displayArrow(545,395,WEST)
+      //displayArrow(470,475,WEST)
+      //displayArrow(480,580,WEST)
     }
 
     window.onload = loadHandler
