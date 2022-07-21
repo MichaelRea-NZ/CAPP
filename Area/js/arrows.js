@@ -4,9 +4,9 @@
 /* globals document console window */
 
 function displayAttacks(areaId) {
-  let allArrowCoords = game.findAttackArrows(areaId);
+  let allArrowCoords = game.findAttackArrows(areaId)
   for (let arrowCoords of allArrowCoords) {
-    displayArrow(arrowCoords[0], arrowCoords[1], arrowCoords[2]);
+    displayArrow(arrowCoords[0], arrowCoords[1], arrowCoords[2])
   }
 }
 function displayArrow(mapX, mapY, unitIndex) {
@@ -20,17 +20,19 @@ function displayArrow(mapX, mapY, unitIndex) {
     mapY, // draw position
     ARROW_DISPLAY_WIDTH,
     ARROW_DISPLAY_HEIGHT
-  ); // draw width and height
+  ) // draw width and height
 }
 
 function displayAttackOptions(id) {
-  let eneamyNeighbours = game.findAdjacentEneamyAreas(id);
+  let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
   for (let area of eneamyNeighbours) {
-    let coords = document.getElementById(area._id).coords;
-    highlightEneamy(coords);
+    let coords = document.getElementById(area._id).coords
+    highlightEneamy(coords)
   }
 }
 
+
+
 function clearArrows() {
-  arrowsContext.clearRect(0, 0, arrowCanvas.width, arrowCanvas.height);
+  arrowsContext.clearRect(0, 0, arrowCanvas.width, arrowCanvas.height)
 }

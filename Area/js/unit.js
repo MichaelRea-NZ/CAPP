@@ -26,27 +26,27 @@ class Unit {
     startTurn,
     startPosition
   ) {
-    this._id = id;
-    this._name = name;
-    this._army = army;
-    this._training = training;
-    this._branch = branch;
-    this._startTurn = startTurn;
-    this._startPosition = startPosition;
-    this._currentPosition = startPosition;
+    this._id = id
+    this._name = name
+    this._army = army
+    this._training = training
+    this._branch = branch
+    this._startTurn = startTurn
+    this._startPosition = startPosition
+    this._currentPosition = startPosition
   }
   get name() {
-    let result = `${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`;
+    let result = `${this._name} (${this._training} ${this._branch}) at ${this._currentPosition}`
     if (this._startTurn !== 1) {
-      result += ` on turn ${this._startTurn}`;
+      result += ` on turn ${this._startTurn}`
     }
-    return result;
+    return result
   }
   get army() {
-    if (this._army == "Allied") {
-      return true;
+    if (this._army == 'Allied') {
+      return true
     } else {
-      return false;
+      return false
     }
   }
 }

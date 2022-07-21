@@ -45,7 +45,7 @@ function hightlightEnemyUnitAreas(allOrigins) {
   for (let origin of allOrigins) {
     let coords = mapMap.children[origin].coords
     //calls 
-    highlightArea(coords)
+    highlightArea(coords);
   }
 }
 
@@ -60,7 +60,7 @@ function addAttackOriginListeners(allOrigins) {
   }
 }
 
-/* function findAttackOptions(id) {
+function findAttackOptions(id) {
   //calls game.findAdjacentEneamyAreas which returns an array of enemy neighbours
   let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
   // go through the eneamyNeighbours
@@ -70,7 +70,7 @@ function addAttackOriginListeners(allOrigins) {
     // highlights the eneamyNeighbours
     highlightEneamy(coords)
   }
-} */
+}
 
 //Used when an attacking unit is clicked on.
 function attackOriginHandler(event) {

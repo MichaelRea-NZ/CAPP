@@ -1,7 +1,12 @@
+/* eslint quotes: ["error", "single"] */
+/* eslint semi: ["error", "never"] */
+/* eslint no-unused-vars: "error" */
+/* globals document console window */
+
 class Game {
   constructor() {
-    this._allUnits = [];
-    this._allAreas = [];
+    this._allUnits = []
+    this._allAreas = []
   }
 
   addUnit(id, name, army, training, branch, startTurn, startPosition) {
@@ -13,72 +18,72 @@ class Game {
       branch,
       startTurn,
       startPosition
-    );
-    this._allUnits.push(newUnit);
-    let area = this._allAreas.find((area) => area._id === startPosition);
+    )
+    this._allUnits.push(newUnit)
+    let area = this._allAreas.find((area) => area._id === startPosition)
     if (area) {
-      area.addUnit(newUnit);
+      area.addUnit(newUnit)
     }
   }
 
   reportAlliedUnits() {
-    let result = "";
+    let result =  ''
     for (let unit of game._allUnits) {
       if (unit.army == true) {
-        result += unit.name + "\n";
+        result += unit.name + '\n'
       }
     }
-    return result;
+    return result
   }
 
   reportGermanUnits() {
-    let result = "";
+    let result = ''
     for (let unit of game._allUnits) {
       if (unit.army == false) {
-        result += unit.name + "\n";
+        result += unit.name + '\n'
       }
     }
-    return result;
+    return result
   }
 
   findAdjacentEneamyAreas(targetAreaId) {
-    let result = [];
+    let result = []
     const targetArea = this._allAreas.find(
       (area) => area._id === targetAreaId
-    );
-    var eneamy;
-    if (targetArea._control === "Allied") {
-      eneamy = "German";
+    )
+    var eneamy
+    if (targetArea._control === 'Allied') {
+      eneamy = 'German'
     } else {
-      eneamy = "Allied";
+      eneamy = 'Allied'
     }
 
     for (let neighbourArea of targetArea._allNeighbours) {            
       if (neighbourArea._control === eneamy) {
-        result.push(neighbourArea);
+        result.push(neighbourArea)
       }
     }
-    return result;
+    return result
   }
 
   findAdjacentFriendlyAreas(targetAreaId) {
-    let result = [];
+    let result = []
     const targetArea = this._allAreas.find(
       (area) => area._id === targetAreaId
-    );
-    var eneamy;
-    if (targetArea._control === "Allied") {
-      eneamy = "Allied";
+    )
+    var eneamy
+    if (targetArea._control === 'Allied') {
+      eneamy = 'Allied'
     } else {
-      eneamy = "German";
+      eneamy = 'German'
     }
 
     for (let neighbourArea of targetArea._allNeighbours) {           
       if (neighbourArea._control === eneamy) {
-        result.push(neighbourArea);
+        result.push(neighbourArea)
       }
     }
-    return result;
+    return result
   }
 
   addArea(
@@ -90,7 +95,7 @@ class Game {
     centerX,
     centerY,
     vp = 0,
-    fullName = ""
+    fullName = ''
   ) {
     let newArea = new Area(
       id,
@@ -102,71 +107,71 @@ class Game {
       centerY,
       vp,
       fullName
-    );
-    this._allAreas.push(newArea);
+    )
+    this._allAreas.push(newArea)
   }
 
   reportAreas() {
-    let result = "";
+    let result = ''
     for (let areas of game._allAreas) {
-      result += areas.areaName + "\n";
+      result += areas.areaName + '\n'
     }
-    return result;
+    return result
   }
 
   getUnitsInArea(targetAreaId) {
     const targetArea = this._allAreas.find(
       (area) => area._id === targetAreaId
-    );
-    return targetArea._allUnits;
+    )
+    return targetArea._allUnits
   }
 
   getArea(targetAreaId) {
-    return this._allAreas.find((area) => area._id === targetAreaId);
+    return this._allAreas.find((area) => area._id === targetAreaId)
   }
 
   addNeighbours(targetAreaId, allNeighbourIds) {
     const targetArea = this._allAreas.find(
       (area) => area._id === targetAreaId
-    );
+    )
     for (let neighbourAreaId of allNeighbourIds) {
       const neighbourArea = this._allAreas.find(
         (area) => area._id === neighbourAreaId
-      );
-      targetArea.addNeighbour(neighbourArea);
+      )
+      targetArea.addNeighbour(neighbourArea)
     }
   }
 
   findAttackArrows(targetAreaId) {
-    let allAttackers = [];
+    let allAttackers = []
     const targetArea = this._allAreas.find(
       (area) => area._id === targetAreaId
-    );
+    )
 
     for (let attackArea of targetArea._allAttackArrows) {
-      allAttackers.push(attackArea[0]);
+      allAttackers.push(attackArea[0])
     }
-    let allArrows = [];
+    let allArrows = []
     for (let attackAreaId of allAttackers) {
       const targetArea = this._allAreas.find(
         (area) => area._id === attackAreaId
-      );
+      )
       for (let x of targetArea._allAttackArrows) {
-        let id = x[0];
+        let id = x[0]
         if (id === targetAreaId) {
-          allArrows.push(x[1]);
+          allArrows.push(x[1])
         }
       }
     }
-    return allArrows;
+    return allArrows
   }
 
   addAttackArrows(attackAreaId, allNeighbourIds) {
     const attackArea = this._allAreas.find(
       (area) => area._id === attackAreaId
-    );
+    )
     for (let arrowAttackAreaId of allNeighbourIds) {          
-      attackArea.addAttackArrow(arrowAttackAreaId);
+      attackArea.addAttackArrow(arrowAttackAreaId)
     }
   }
 }

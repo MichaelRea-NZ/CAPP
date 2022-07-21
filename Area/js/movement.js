@@ -27,8 +27,8 @@ function findUnitsAreas(control) {
 
 function hightlightUnitAreas(allOrigins) {        
   for (let origin of allOrigins) {
-    let coords = mapMap.children[origin].coords;
-    highlightArea(coords);
+    let coords = mapMap.children[origin].coords
+    highlightArea(coords)
   }
 }
 
