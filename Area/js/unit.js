@@ -1,7 +1,7 @@
 /* eslint quotes: ["error", "single"] */
 /* eslint semi: ["error", "never"] */
 /* eslint no-unused-vars: "error" */
-/* globals document console window */
+/* globals  */
 
 /* !! fixed BUG.. 
         // without the following the canvas will capture the mouse events from the map of areas
@@ -16,7 +16,7 @@
               z-index: 2;
             }
         */
-class Unit {
+class Unit {// eslint-disable-line no-unused-vars
   constructor(
     id,
     name,

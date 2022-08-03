@@ -17,6 +17,7 @@ p {
     user-select: none
 }
 
+
 /*
 #map-image, #highlights_canvas {
     margin-top: 30px;
@@ -57,4 +58,43 @@ p {
     needed since canvas is position in front of image */
     position:absolute;
     z-index: 5;
+}
+
+#splash_background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,.5);
+    z-index: 150
+}
+
+#splash_title {
+    position: absolute;
+    width: 50%;
+    height: 90%;
+    z-index: 200;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto
+}
+
+#next_start {
+    text-align: center;
+    margin-top: 30px;
+    color: #fff
+}
+
+#next_new_button,#next_continue_button {
+    display: inline-block;
+    cursor: pointer;
+    border: 1px solid #000;
+    border-radius: 10px 10px 10px 10px;
+    color: #fff;
+    background-color: darkred;
+    margin: 20px 20px 0;
+    padding: 10px 20px;
+    width: 170px;
+    font-size: 1.1em
 }

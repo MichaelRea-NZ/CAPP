@@ -1,17 +1,22 @@
-class Clock {
+/* eslint quotes: ["error", "single"] */
+/* eslint semi: ["error", "never"] */
+/* eslint no-unused-vars: "error" */
+/* globals    */
+
+class Clock {// eslint-disable-line no-unused-vars
   constructor() {
-  this._currentTurn = 1
-  this._totalTurn = 4
-  this._allDates = [
-  'Turn One - 24 April, Morning',
-  'Turn two - 24 April, Day',
-  'Turn Three - 24 April, Counter-Attack',
-  'Turn four - 26-27 April, Consolidation'
-  ]
-  
-this._allRules = [
-//rules 1
-  `<p><b>Number of battles</b>: 4, see below,</p>
+    this._currentTurn = 1
+    this._totalTurn = 4
+    this._allDates = [
+      'Turn One - 24 April, Morning',
+      'Turn two - 24 April, Day',
+      'Turn Three - 24 April, Counter-Attack',
+      'Turn four - 26-27 April, Consolidation'
+    ]
+
+    this._allRules = [
+      //rules 1
+      `<p><b>Number of battles</b>: 4, see below,</p>
   <p><b>Initiative bonus</b>: N/A, see below</p><h3>First turn</h3>
   <p>The German player is automatically the attacker in all four battles 
    and the entire turn is under Gas attack effects
@@ -35,8 +40,8 @@ this._allRules = [
   This means you get 1 rifle section instead of 2, 
   2 Vickers HMG instead of 4 
   and 1 HMG nest instead of 2.</p>`,
-<!-- rules2 -->
-  `<p><b>Number of battles:</b> 5</p>'
+//--rules2 --
+      `<p><b>Number of battles:</b> 5</p>'
   <p><b>Initiative bonus:</b> Germans receive a +1 on initiative and win on ties</p>
   <p><b>Special modifer:</b> The winner of the last battle adds +1 to their initiative.
   etc!!!</p>
@@ -56,8 +61,8 @@ this._allRules = [
   <p>Both Firestorm Troops form the same Brigade must be
   placed together in the same area. They will then lead the
   attack in turn 3.</p>`,
-<!-- rules 3 -->
-  `<p><b>Number of battles:</b> 2 Night-attack battles + 3 more for
+//--rules 3 -- 
+      `<p><b>Number of battles:</b> 2 Night-attack battles + 3 more for
   a total of 5</p>'
   <p><b>Initiative bonus:</b> AIF are automatically attackers in
   the first two battles, after that the BEF receive a +1 on
@@ -84,8 +89,8 @@ this._allRules = [
   initiative as well as winning on ties. The side that won
   the last battle gets an extra +1 bonus on initiative on the
   next engagement</p>`,
-<!-- rules 4 -->
-  `<p><b>Number of battles:</b> 3</p>'
+//--rules 4 --
+      `<p><b>Number of battles:</b> 3</p>'
   <p><b>Initiative bonus:</b> The BEF receive a +1 on initiative and
   win on ties</p>
   <p><b>Special rules:</b> The winner of the last battle adds +1
@@ -102,11 +107,11 @@ this._allRules = [
   <p>Total your victory points at the
   end of the turn and determine
   the winner of Firestorm: Villers-Bretonneux.</p>`
-]
+    ]
 
-this._allDescriptions = [
-<!-- discription 1 -->
-  `<i><p>We looked towards the line and through the trees a sudden flickering was seen, like summer lightning. Like a sudden
+    this._allDescriptions = [
+//--discription 1 -- 
+      `<i><p>We looked towards the line and through the trees a sudden flickering was seen, like summer lightning. Like a sudden
   thundershower, the wood was drenched with all kinds of shell, including gas. ‘Get the men out into the open’ shouted the
   company commander.</p>
   <p>- Lieutenant F.S. Mason</p></i>
@@ -124,8 +129,8 @@ this._allDescriptions = [
   trenches. The determined German onslaught broke through
   the thinly defended BEF line and pushed towards Villers
   Bretonneux.</p>`,
-<!-- discription 2 -->
-  `<i><p>So we had met our rivals at last! For the first time in history tank was encountering tank!</p>
+//--discription 2 -- 
+      `<i><p>So we had met our rivals at last! For the first time in history tank was encountering tank!</p>
   <p>Frank Mitchell (First published in Everyman at War 1930)</p></i>
   <p>After breaking through the BEF trenches the Germans
   pushed on towards their objectives, and captured the town
@@ -164,9 +169,9 @@ this._allDescriptions = [
   it in daylight. Here is all your artillery out of action and the
   enemy with all his guns in position.”</p>
   <p>The counter-attack was postponed until after dark.</p>`,
-  
-  
-  `<i><p>They [the Germans] had no chance in the wild onslaught of maddened men…they were killed and killed. Bayonets passed with
+
+
+      `<i><p>They [the Germans] had no chance in the wild onslaught of maddened men…they were killed and killed. Bayonets passed with
   ease through grey clad bodies, and were withdrawn with a sucking sound…One huge Australian advanced firing a Lewis Gun
   from the shoulder, spraying the ground with lead…One saw running forms in the dark, and the flashes of rifles, then the evil pyre
   in the town flared and showed to their killers white faces of Germans lurking in shell holes, or flinging away their arms and trying
@@ -211,8 +216,8 @@ this._allDescriptions = [
   critical situation. His coolness and utter disregard of danger
   inspired all.</p>
   <p>Lieutenant Clifford Sadlier AIF (1982-1964)</p></i>`,
-  
-  `<i><p>The enemy, however, did not succeed in attaining his objectives, which were the villages of Fouilloy, south of Corbie, and Cachy,
+
+      `<i><p>The enemy, however, did not succeed in attaining his objectives, which were the villages of Fouilloy, south of Corbie, and Cachy,
   west of Viller-Bretonneux, and the temporary progress which the enemy was able to make near Villers-Bretonneux was paid for in
   heavy sacrifices of blood…</p>
   <p>- The Scarborough Mercury</p></i>
@@ -228,42 +233,42 @@ this._allDescriptions = [
   and leading to the collapse of German morale on the 8th
   of August. The day which Erich Ludendorff would call “the
   Black day of the German Army”.</p> `
-]
+    ]
   }
-get turn() {
-return this._currentTurn
-// console.log(this._currentTurn)
-}
+  get turn() {
+    return this._currentTurn
+    // console.log(this._currentTurn)
+  }
 
-get date() {
-let result = this._allDates[this._currentTurn - 1]
-return result
-//console.log(result)
-}
+  get date() {
+    let result = this._allDates[this._currentTurn - 1]
+    return result
+    //console.log(result)
+  }
 
-get specialRules() {
-let result = this._allRules[this._currentTurn - 1]
-return result
-//console.log(result)
-}
+  get specialRules() {
+    let result = this._allRules[this._currentTurn - 1]
+    return result
+    //console.log(result)
+  }
 
-get description() {
-let result = this._allDescriptions[this._currentTurn - 1]
-return result
-//console.log(result)
-}
+  get description() {
+    let result = this._allDescriptions[this._currentTurn - 1]
+    return result
+    //console.log(result)
+  }
 
-   nextTurn() {
-    if(this._currentTurn <4){
-      let result = this._currentTurn += 1 
-      return result 
-      console.log(result)
-      }
+  nextTurn() {
+    if (this._currentTurn < 4) {
+      let result = this._currentTurn += 1
+      return result     
     }
+  }
 }
-
+/*
 let clock = new Clock()
 console.log(clock.turn)
 console.log(clock.date)
 console.log(clock.specialRules)
 console.log(clock.description)
+*/

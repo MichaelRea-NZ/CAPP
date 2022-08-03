@@ -1,15 +1,19 @@
+/* globals Unit game Area*/
 /* eslint quotes: ["error", "single"] */
 /* eslint semi: ["error", "never"] */
 /* eslint no-unused-vars: "error" */
-/* globals document console window */
 
-class Game {
+
+class Game {// eslint-disable-line no-unused-vars
   constructor() {
     this._allUnits = []
     this._allAreas = []
+    this._allMoves = []
   }
 
+  //Used to create units 
   addUnit(id, name, army, training, branch, startTurn, startPosition) {
+    //The properties of Units
     let newUnit = new Unit(
       id,
       name,
@@ -19,15 +23,18 @@ class Game {
       startTurn,
       startPosition
     )
+    //Pushes an units object to the _allUnits array 
     this._allUnits.push(newUnit)
+    //??? Somehow matches the startPosition (which is === to an area id to the area with that id0 
     let area = this._allAreas.find((area) => area._id === startPosition)
     if (area) {
+      //adds the unit to the matching area in the  _allUnits array 
       area.addUnit(newUnit)
     }
   }
 
   reportAlliedUnits() {
-    let result =  ''
+    let result = ''
     for (let unit of game._allUnits) {
       if (unit.army == true) {
         result += unit.name + '\n'
@@ -47,18 +54,22 @@ class Game {
   }
 
   findAdjacentEneamyAreas(targetAreaId) {
+    //Array to hold eneamy neighbours
     let result = []
+    //Gets the id of an area ???
     const targetArea = this._allAreas.find(
       (area) => area._id === targetAreaId
     )
     var eneamy
+    //Works out wither a neighbour is an eneamy.
     if (targetArea._control === 'Allied') {
       eneamy = 'German'
     } else {
       eneamy = 'Allied'
     }
 
-    for (let neighbourArea of targetArea._allNeighbours) {            
+    //goes through _allNeighbours to to find what neighbours are enemies
+    for (let neighbourArea of targetArea._allNeighbours) {
       if (neighbourArea._control === eneamy) {
         result.push(neighbourArea)
       }
@@ -78,7 +89,7 @@ class Game {
       eneamy = 'German'
     }
 
-    for (let neighbourArea of targetArea._allNeighbours) {           
+    for (let neighbourArea of targetArea._allNeighbours) {
       if (neighbourArea._control === eneamy) {
         result.push(neighbourArea)
       }
@@ -166,6 +177,15 @@ class Game {
     return allArrows
   }
 
+  displayAttackArrows(attackAreaId, allNeighbourIds) {
+    const attackArea = this._allAreas.find(
+      (area) => area._id === attackAreaId
+    )
+    for (let arrowAttackAreaId of allNeighbourIds) {
+      attackArea.addAttackArrow(arrowAttackAreaId)
+    }
+  }
+  
   addAttackArrows(attackAreaId, allNeighbourIds) {
     const attackArea = this._allAreas.find(
       (area) => area._id === attackAreaId

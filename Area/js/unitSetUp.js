@@ -1,13 +1,13 @@
 /* eslint quotes: ["error", "single"] */
 /* eslint semi: ["error", "never"] */
 /* eslint no-unused-vars: "error" */
-/* globals document console window */
+/* globals game console unitsContext alliedImage UNIT_IMAGE_WIDTH UNIT_IMAGE_HEIGHT UNIT_DISPLAY_WIDTH UNIT_DISPLAY_HEIGHT germanImage */
 
 var turn = 1
 
-function defaultSetUp() {
+function defaultSetUp() {// eslint-disable-line no-unused-vars
   for (let unit of game._allUnits) {
-    let areaName = unit._startPosition
+    let areaName = unit._startPosition // eslint-disable-line no-unused-vars
     console.log(unit)
     let area = game._allAreas.find(
       (area) => area._id === unit._startPosition
@@ -50,11 +50,11 @@ function defaultSetUp() {
   }
 }
 
-function displayUnits() {
+function displayUnits() {// eslint-disable-line no-unused-vars
   for (let area of game._allAreas) {
     let x = area._centerX
     let y = area._centerY
-    for (unit of area._allUnits) {            
+    for (let unit of area._allUnits) {
       if (unit._startTurn <= turn && unit._army === 'Allied') {
         displayAllied(x, y, unit._id)
       }

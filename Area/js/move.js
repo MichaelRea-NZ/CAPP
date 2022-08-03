@@ -1,9 +1,9 @@
 /* eslint quotes: ["error", "single"] */
 /* eslint semi: ["error", "never"] */
 /* eslint no-unused-vars: "error" */
-/* globals document console window */
+/* globals  */
 
-class Move {
+class Move {// eslint-disable-line no-unused-vars
   constructor() {
     this._originId = undefined
     this._destinationId = undefined

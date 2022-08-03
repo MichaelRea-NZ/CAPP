@@ -1,9 +1,9 @@
-      /* eslint quotes: ["error", "single"] */
-      /* eslint semi: ["error", "never"] */
-      /* eslint no-unused-vars: "error" */
-      /* globals document console window */
+/* eslint quotes: ["error", "single"] */
+/* eslint semi: ["error", "never"] */
+/* eslint no-unused-vars: "error" */
+/* globals */
 
-class Area {
+class Area {// eslint-disable-line no-unused-vars
   constructor(
     id,
     terrain,
@@ -23,7 +23,7 @@ class Area {
     this._canSupplyAllies = canSupplyAllied
     this._canSupplyGerman = canSupplyGerman
     this._control = control
-    if (control == "German") {
+    if (control == 'German') {
       this._isGerman = true
     } else {
       this._isAllied = true
@@ -48,16 +48,16 @@ class Area {
   addAttackArrow(anAttackArrow) {
     this._allAttackArrows.push(anAttackArrow)
   }
-  
+
   findArrowOptions(id) {
-  //let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
-  for (let arrow of this._allAttackArrows) {
-    if (arrow[0] === id){
-      return arrow[1]
+    //let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
+    for (let arrow of this._allAttackArrows) {
+      if (arrow[0] === id) {
+        return arrow[1]
+      }
+      //let coords = document.getElementById(area._id).coords
+      //highlightEneamy(coords)
     }
-    //let coords = document.getElementById(area._id).coords
-    //highlightEneamy(coords)
   }
-}
-  
+
 }     
