@@ -1,0 +1,141 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLPackage</id><coordinates><x>30</x><y>30</y><w>240</w><h>100</h></coordinates><panel_attributes>arrows
+--
+displayAttacks(areaId)
+displayArrow(mapX, mapY, unitIndex)
+displayAttackOptions(id)
+clearArrows()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>30</x><y>160</y><w>260</w><h>290</h></coordinates><panel_attributes>moving
+--
+var destinationId
+var originId
+var moveDestinationIds
+var fromAreas
+--
+startMove(controller)
+findUnitsAreas(control)
+hightlightUnitAreas(allOrigins)
+addMoveOriginListeners(allOrigins)
+moveOriginHandler(event)
+removeOriginListeners(allOrigins)
+addMoveDestinationListeners(allOrigins)
+rotateUnits(targetAreaId)
+rotateUnitsHandler()
+moveDestinationHandler(event)
+removeDestinationListeners(allOrigins
+clearUnits()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>360</x><y>50</y><w>260</w><h>260</h></coordinates><panel_attributes>attacking
+--
+var attackingAreaId
+var defendingAreaId
+var allFriendlyFrontLineAreas = []
+var enemyNeighbours = []
+--
+findFrontline(friendly)
+startAttack(friendly)
+hightlightEnemyUnitAreas(allOrigins)
+addAttackOriginListeners(allOrigins)
+attackOriginHandler(event)
+removeAttackOriginListeners(allOrigins)
+addAttackedAreaListeners(allOrigins)
+attackDestinationHandler(event)
+removeAttackDestinationListeners(allOrigins)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>420</x><y>730</y><w>140</w><h>70</h></coordinates><panel_attributes>intergrated2
+--
+loadHandler()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>40</x><y>710</y><w>270</w><h>120</h></coordinates><panel_attributes>unitSetUp
+--
+var turn = 1
+--
+defaultSetUp()
+displayUnits()
+displayAllied(mapX, mapY, unitIndex)
+displayGerman(mapX, mapY, unitIndex)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>380</x><y>350</y><w>190</w><h>120</h></coordinates><panel_attributes>start
+--
+addSplashListerner()
+removeSplashListerner()
+continueCampaignHandler()
+startCampaignHandler()
+startGame()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>20</x><y>520</y><w>350</w><h>120</h></coordinates><panel_attributes>highLights
+--
+highlightArea(coords, highlightColor = PALE_ORANGE)
+highlightFriendly(coords, highlightColor = LIGHT_GREY)
+highlightEneamy(coords, highlightColor = LIGHT_PURPLE)
+clearHighlights()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>670</x><y>50</y><w>210</w><h>280</h></coordinates><panel_attributes>Area
+--
+id:string
+terrain:string
+canSupplyAllied:boolean
+canSupplyGerman:boolean
+control:string
+centerX:int
+centerY:int
+vp:int
+fullName:string
+isAttacker:boolean
+isDefending:boolean
+--
+addUnit(unit)
+get areaName()
+addNeighbour(aNeighbour)
+addAttackArrow(anAttackArrow)
+findArrowOptions(id)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>900</x><y>50</y><w>600</w><h>360</h></coordinates><panel_attributes>Game
+--
+_allUnits:[]
+_allAreas:[]
+_allMoves: []
+_allAttacks:[]
+_allReinforcementUnits = []
+_clock
+--
+addUnit(id, name, army, training, branch, startTurn, startPosition)
+addReinforcementUnit(id, name, army, training, branch, startTurn, startPosition)
+reportAlliedUnits()
+reportGermanUnits()
+findAdjacentEneamyAreas(targetAreaId)
+findAdjacentFriendlyAreas(targetAreaId)
+addArea(id, terrain, canSupplyAllied, canSupplyGerman, control, centerX, centerY, vp = 0, fullName = "")
+reportAreas()
+getUnitsInArea(targetAreaId)
+getArea(targetAreaId)
+addNeighbours(targetAreaId, allNeighbourIds)
+findAttackArrows(targetAreaId)
+displayAttackArrows(attackAreaId, allNeighbourIds)
+addAttackArrows(attackAreaId, allNeighbourIds)
+addMove(originId, destinationId, unitId)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>660</x><y>430</y><w>210</w><h>190</h></coordinates><panel_attributes>Clock
+--
+_currentTurn:int
+_totalTurn:int
+_allDates:[]
+_allRules[]
+_allDescriptions:[]
+--
+get turn()
+get date()
+get specialRules()
+get description()
+nextTurn()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>960</x><y>480</y><w>210</w><h>230</h></coordinates><panel_attributes>Unit
+--
+id:string
+name:string
+army:string
+training:string
+branch:string
+startTurn:int
+startPosition:string
+_currentPosition:string
+_hasMoved :boolean false
+--
+get name()
+get army()
+clearMove()
+makeMove()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>650</x><y>750</y><w>210</w><h>120</h></coordinates><panel_attributes>Attack
+--
+_attackingAreaId:string
+_defendingAreaId:string
+
+--
+setAttackingArea(id)
+setDefendingAreaId(id)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>942</x><y>790</y><w>210</w><h>110</h></coordinates><panel_attributes>Move
+--
+_turn
+_originId
+_destinationId
+_unitId
+</panel_attributes><additional_attributes></additional_attributes></element></diagram>

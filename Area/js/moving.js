@@ -19,7 +19,11 @@ function findUnitsAreas(control) {
   let allOrigins = [];
   for (let area of game._allAreas) {
     if (area._control === control) {
-      if (area._allUnits.length > 0) allOrigins.push(area._id);
+      if (
+        area._allUnits.filter((unit) => unit._hasMoved === false).length > 0
+      ) {
+        allOrigins.push(area._id);
+      }
     }
   }
   return allOrigins;
@@ -110,7 +114,8 @@ function moveDestinationHandler(event) {
     rotateUnitsHandler,
     false
   );
-  //Code here
+  game.addMove(originArea._id, destinationArea._id, unit._id);
+  unit.makeMove();
 }
 
 function removeDestinationListeners(allOrigins) {

@@ -310,7 +310,7 @@
     game.addUnit(0, "14 Bde AIF", "Allied", "Veteran", "Infantry", 1, "C1");
     game.addUnit(3, "25 Bde", "Allied", "Trained", "Infantry", 1, "C3");
     game.addUnit(1, "23 Bde", "Allied", "Trained", "Infantry", 1, "C4");
-    //game.addUnit(9, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
+    game.addReinforcementUnit(9, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
     //game.addUnit(10, '13 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'C2')
     //game.addUnit(11, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
     //game.addUnit(12, '15 Bde AIF', 'Allied', 'Veteran', 'Infantry', 2, 'B1')
@@ -516,7 +516,8 @@
 
     //attachs click to map of ALL areas
     function loadHandler() {
-      mapMap.addEventListener("click", areaClickHandler, false);
+      /*
+     mapMap.addEventListener("click", areaClickHandler, false);
       highlightControler();
       let turn = 1;
       for (let area of game._allAreas) {
@@ -534,9 +535,13 @@
           y += 20;
         }
       }
+      */
+      addSplashListeners()
+
     }
 
-      //window.onload = loadHandler
+
+    window.onload = loadHandler
   </script>
 </body>
 

@@ -3,22 +3,12 @@
 /* eslint no-unused-vars: "error" */
 /* globals  */
 
-class Move {// eslint-disable-line no-unused-vars
-  constructor() {
-    this._originId = undefined
-    this._destinationId = undefined
-    this._unitId = undefined
-  }
-
-  setOriginId(id) {
-    this._originId = id
-  }
-
-  setDestinationId(id) {
-    this._destinationId = id
-  }
-
-  setUnitId(id) {
-    this._unitId = id
+class Move {
+  // eslint-disable-line no-unused-vars
+  constructor(turn, originId, destinationId, unitId) {
+    this._turn = turn;
+    this._originId = originId;
+    this._destinationId = destinationId;
+    this._unitId = unitId;
   }
 }
