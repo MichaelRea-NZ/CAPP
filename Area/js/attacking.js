@@ -9,6 +9,15 @@ var allFriendlyFrontLineAreas = []
 var enemyNeighbours = []
 
 
+function startAttack(friendly) {// eslint-disable-line no-unused-vars
+  //collects the front line areas that have enemy neighbours
+  allFriendlyFrontLineAreas = findFrontline(friendly)
+  //highlights the friendly areas that have enemy neighbours
+  hightlightUnitAreas(allFriendlyFrontLineAreas)
+  // listens for a click event on (friendly areas that have enemy neighbours)
+  addAttackOriginListeners(allFriendlyFrontLineAreas)
+}
+
 function findFrontline(friendly) {
   let allFrontLineAreas = []
   //go through allAreas
@@ -30,25 +39,6 @@ function findFrontline(friendly) {
   return allFrontLineAreas
 }
 
-function startAttack(friendly) {// eslint-disable-line no-unused-vars
-  //collects the front line areas that have enemy neighbours
-  allFriendlyFrontLineAreas = findFrontline(friendly)
-  //highlights the friendly areas that have enemy neighbours
-  hightlightUnitAreas(allFriendlyFrontLineAreas)
-  // listens for a click event on (friendly areas that have enemy neighbours)
-  addAttackOriginListeners(allFriendlyFrontLineAreas)
-}
-
-
-// origin and allOrigins I am not totally certain about how come about. Could we discuss in the morning.
-function hightlightEnemyUnitAreas(allOrigins) {// eslint-disable-line no-unused-vars
-  for (let origin of allOrigins) {
-    let coords = mapMap.children[origin].coords
-    //calls 
-    highlightArea(coords)
-  }
-}
-
 //allows an attacking area to be clicked on
 function addAttackOriginListeners(allOrigins) {
   for (let origin of allOrigins) {
@@ -59,6 +49,18 @@ function addAttackOriginListeners(allOrigins) {
     )
   }
 }
+
+
+// origin and allOrigins I am not totally certain about how come about. Could we discuss in the morning.
+/* function hightlightEnemyUnitAreas(allOrigins) {// eslint-disable-line no-unused-vars
+  for (let origin of allOrigins) {
+    let coords = mapMap.children[origin].coords
+    //calls 
+    highlightArea(coords)
+  }
+} */
+
+
 
 //Used when an attacking unit is clicked on.
 function attackOriginHandler(event) {
