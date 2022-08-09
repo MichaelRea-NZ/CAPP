@@ -4,9 +4,9 @@
 /* eslint no-unused-vars: "error" */
 
 class Attack {// eslint-disable-line no-unused-vars
-  constructor(turn, attakingAreaId, defendingAreaId) {
-    this._turn = turn;
-    this._attackingAreaId = undefined
-    this._defendingAreaId = undefined
+  constructor(turn, defendingAreaId, attackingAreaId) {
+    this._turn = turn
+    this._attackingAreaId = attackingAreaId
+    this._defendingAreaId = defendingAreaId
   }
 }

@@ -212,13 +212,12 @@ class Game {
     this._allMoves.push(newMove)
   }
 
-  addAttack(originId, destinationId, areaId) {
+  addAttack(defendingAreaId, attackingAreaId) {
     let newAttack = new Attack(
       this._clock.turn,
-      originId,
-      destinationId,
-      areaId
+      defendingAreaId,
+      attackingAreaId,      
     )
-    this._allMoves.push(newAttack)
+    this._allAttacks.push(newAttack)
   }
 }

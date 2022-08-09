@@ -41,8 +41,8 @@ function findFrontline(friendly) {
 
 //allows an attacking area to be clicked on
 function addAttackAreaListeners(allAttackAreaIds) {
-  for (let origin of allAttackAreaIds) {
-    mapMap.children[origin].addEventListener("click", attackAreaHandler, false)
+  for (let attackArea of allAttackAreaIds) {
+    mapMap.children[attackArea].addEventListener("click", attackAreaHandler, false)
   }
 }
 
@@ -55,6 +55,33 @@ function addAttackAreaListeners(allAttackAreaIds) {
   }
 } */
 
+function findAdjacentUnAttackedEnemyAreas(attackingAreaId) {  
+  //Gets the id of an area ???
+  const defendingArea = game._allAreas.find((area) => area._id === attackingAreaId)
+  var enemy
+  //Works out wither a neighbour is an enemy.
+  if (defendingArea._control === "Allied") {
+    enemy = "German"
+  } else {
+    enemy = "Allied"
+  }
+  //goes through _allNeighbours to to find what neighbours are enemies
+  //Array to hold enemy neighbours
+  let allAdjacementEnemyAreas = []
+  for (let neighbourArea of defendingArea._allNeighbours) {
+    if (neighbourArea._control === enemy) {      
+      allAdjacementEnemyAreas.push(neighbourArea)
+    }
+  }
+  //Array to hold enemy neighbours
+  let allUnAttackedEnemyAreas = [...allAdjacementEnemyAreas] 
+  //Only if not attacked from attacking area in this turn.
+  
+
+
+  return allUnAttackedEnemyAreas
+}
+
 //Used when an attacking unit is clicked on.
 function attackAreaHandler(event) {
   console.log(event.target.id)
@@ -64,7 +91,7 @@ function attackAreaHandler(event) {
   displayAttackOptions(attackingAreaId)
   // Not sure whatis happening here. Though this was already called in findAdjacentEneamyAreas.
   // Or is just rebuilding a new enemyNeighbours of the attacking area that was click on?
-  enemyNeighbours = game.findAdjacentEneamyAreas(attackingAreaId)
+  enemyNeighbours = findAdjacentUnAttackedEnemyAreas(attackingAreaId)
   //calls addAttackedAreaListeners
   addDefenderAreaListeners(enemyNeighbours)
   // ditto
@@ -73,9 +100,9 @@ function attackAreaHandler(event) {
 
 // When an attacking area is clicked on this stops it being clicked on again.
 function removeAttackAreaListeners(allAttackAreaIds) {
-  for (let origin of allAttackAreaIds) {
+  for (let attackArea of allAttackAreaIds) {
     // removes the event listner of all the children of the map element
-    mapMap.children[origin].removeEventListener(
+    mapMap.children[attackArea].removeEventListener(
       "click",
       attackAreaHandler,
       false
@@ -85,9 +112,9 @@ function removeAttackAreaListeners(allAttackAreaIds) {
 
 //Same as above but for the enemy unit that is clicked on.
 function addDefenderAreaListeners(allDefendingAreaIds) {
-  for (let origin of allDefendingAreaIds) {
+  for (let defenderArea of allDefendingAreaIds) {
     //allows for a click method
-    mapMap.children[origin._id].addEventListener(
+    mapMap.children[defenderArea._id].addEventListener(
       "click",
       defenderAreaHandler,
       false
@@ -105,7 +132,7 @@ function defenderAreaHandler(event) {
   // finds the arrow that points from the attackArea to the defending area
   let arrow = attackArea.findArrowOptions(defendingAreaId)
 
-  let originArea = game.getArea(originId)
+  //let originArea = game.getArea(originId)
 
   //displays the selected arrow arrow
   displayArrow(...arrow)
@@ -113,14 +140,15 @@ function defenderAreaHandler(event) {
   clearHighlights()
   //removes the listener from enemy areas.
   removeDefendingAreaListeners(enemyNeighbours)
-  game.addAttack(originArea._id, attackArea._id)
-  area.makeMove()
+  //pushes defendingAreaId, attackingAreaId and turn to _allAttacks[]
+  game.addAttack(defendingAreaId, attackingAreaId)
+  //area.makeMove()
 }
 
 //Same as above but for the enemy unit that is clicked on.
-function removeDefendingAreaListeners(allDefendingAreaIds) {
-  for (let origin of allDefendingAreaIds) {
-    mapMap.children[origin._id].removeEventListener(
+function removeDefendingAreaListeners(allDefendingAreas) {
+  for (let defendingArea of allDefendingAreas) {
+    mapMap.children[defendingArea._id].removeEventListener(
       "click",
       defenderAreaHandler,
       false
