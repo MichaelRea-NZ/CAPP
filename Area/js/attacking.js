@@ -30,7 +30,7 @@ function findFrontline(friendly) {
         if (neighbour._control !== friendly) {
           //if they are not friendly push to allFrontLineAreas Array
           allFrontLineAreas.push(area._id)
-          // not sure why the break is here
+          // not sure why the break is here Intent is to not find the same area more than once
           break
         }
       }
@@ -104,12 +104,17 @@ function defenderAreaHandler(event) {
   let attackArea = game.getArea(attackingAreaId)
   // finds the arrow that points from the attackArea to the defending area
   let arrow = attackArea.findArrowOptions(defendingAreaId)
+
+  let originArea = game.getArea(originId)
+
   //displays the selected arrow arrow
   displayArrow(...arrow)
   // clears the highlights from the board
   clearHighlights()
   //removes the listener from enemy areas.
   removeDefendingAreaListeners(enemyNeighbours)
+  game.addAttack(originArea._id, attackArea._id)
+  area.makeMove()
 }
 
 //Same as above but for the enemy unit that is clicked on.

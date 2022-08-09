@@ -3,9 +3,9 @@
 /* eslint no-unused-vars: "error" */
 /* globals PALE_ORANGE highlightsContext LIGHT_GREY LIGHT_PURPLE highlightsCanvas */
 
-
-function highlightArea(coords, highlightColor = PALE_ORANGE) {// eslint-disable-line no-unused-vars
-  const borderPointsArray = coords.split(',').map((element) => {
+function highlightArea(coords, highlightColor = PALE_ORANGE) {
+  // eslint-disable-line no-unused-vars
+  const borderPointsArray = coords.split(",").map((element) => {
     return Number(element)
   })
 
@@ -38,8 +38,9 @@ function highlightArea(coords, highlightColor = PALE_ORANGE) {// eslint-disable-
   highlightsContext.stroke()
 }
 
-function highlightFriendly(coords, highlightColor = LIGHT_GREY) {// eslint-disable-line no-unused-vars
-  const borderPointsArray = coords.split(',').map((element) => {
+function highlightFriendly(coords, highlightColor = LIGHT_GREY) {
+  // eslint-disable-line no-unused-vars
+  const borderPointsArray = coords.split(",").map((element) => {
     return Number(element)
   })
 
@@ -72,8 +73,9 @@ function highlightFriendly(coords, highlightColor = LIGHT_GREY) {// eslint-disab
   highlightsContext.stroke()
 }
 
-function highlightEneamy(coords, highlightColor = LIGHT_PURPLE) {// eslint-disable-line no-unused-vars
-  const borderPointsArray = coords.split(',').map((element) => {
+function highlightEneamy(coords, highlightColor = LIGHT_PURPLE) {
+  // eslint-disable-line no-unused-vars
+  const borderPointsArray = coords.split(",").map((element) => {
     return Number(element)
   })
 
@@ -106,8 +108,9 @@ function highlightEneamy(coords, highlightColor = LIGHT_PURPLE) {// eslint-disab
   highlightsContext.stroke()
 }
 
-// see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html      
-function clearHighlights() {// eslint-disable-line no-unused-vars
+// see https://www.w3docs.com/snippets/javascript/how-to-clear-the-canvas-for-redrawing.html
+function clearHighlights() {
+  // eslint-disable-line no-unused-vars
   highlightsContext.clearRect(
     0,
     0,
@@ -115,4 +118,3 @@ function clearHighlights() {// eslint-disable-line no-unused-vars
     highlightsCanvas.height
   )
 }
-

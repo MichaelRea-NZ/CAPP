@@ -3,7 +3,8 @@
 /* eslint no-unused-vars: "error" */
 /* globals document game arrowsContext arrowImage ARROW_IMAGE_WIDTH ARROW_IMAGE_HEIGHT ARROW_DISPLAY_WIDTH ARROW_DISPLAY_HEIGHT highlightEneamy arrowCanvas */
 
-function displayAttacks(areaId) {// eslint-disable-line no-unused-vars
+function displayAttacks(areaId) {
+  // eslint-disable-line no-unused-vars
   let allArrowCoords = game.findAttackArrows(areaId)
   for (let arrowCoords of allArrowCoords) {
     displayArrow(arrowCoords[0], arrowCoords[1], arrowCoords[2])
@@ -23,7 +24,8 @@ function displayArrow(mapX, mapY, unitIndex) {
   ) // draw width and height
 }
 
-function displayAttackOptions(id) {// eslint-disable-line no-unused-vars
+function displayAttackOptions(id) {
+  // eslint-disable-line no-unused-vars
   let eneamyNeighbours = game.findAdjacentEneamyAreas(id)
   for (let area of eneamyNeighbours) {
     let coords = document.getElementById(area._id).coords
@@ -31,8 +33,7 @@ function displayAttackOptions(id) {// eslint-disable-line no-unused-vars
   }
 }
 
-
-
-function clearArrows() {// eslint-disable-line no-unused-vars
+function clearArrows() {
+  // eslint-disable-line no-unused-vars
   arrowsContext.clearRect(0, 0, arrowCanvas.width, arrowCanvas.height)
 }

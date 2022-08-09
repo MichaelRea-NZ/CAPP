@@ -3,7 +3,8 @@
 /* eslint no-unused-vars: "error" */
 /* globals */
 
-class Area {// eslint-disable-line no-unused-vars
+class Area {
+  // eslint-disable-line no-unused-vars
   constructor(
     id,
     terrain,
@@ -13,7 +14,7 @@ class Area {// eslint-disable-line no-unused-vars
     centerX,
     centerY,
     vp = 0,
-    fullName = ''
+    fullName = ""
   ) {
     this._allNeighbours = []
     this._allUnits = []
@@ -23,7 +24,7 @@ class Area {// eslint-disable-line no-unused-vars
     this._canSupplyAllies = canSupplyAllied
     this._canSupplyGerman = canSupplyGerman
     this._control = control
-    if (control == 'German') {
+    if (control == "German") {
       this._isGerman = true
     } else {
       this._isAllied = true
@@ -60,4 +61,10 @@ class Area {// eslint-disable-line no-unused-vars
     }
   }
 
-}     
+  clearAttack() {
+    this._hasAttacked = false
+  }
+  makeAttack() {
+    this._hasAttacked = true
+  }
+}
