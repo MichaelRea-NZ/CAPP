@@ -8,14 +8,14 @@ var defendingAreaId
 var allFriendlyFrontLineAreas = []
 var enemyNeighbours = []
 
-
-function startAttack(friendly) {// eslint-disable-line no-unused-vars
+function startAttack(friendly) {
+  // eslint-disable-line no-unused-vars
   //collects the front line areas that have enemy neighbours
   allFriendlyFrontLineAreas = findFrontline(friendly)
   //highlights the friendly areas that have enemy neighbours
   hightlightUnitAreas(allFriendlyFrontLineAreas)
   // listens for a click event on (friendly areas that have enemy neighbours)
-  addAttackOriginListeners(allFriendlyFrontLineAreas)
+  addAttackAreaListeners(allFriendlyFrontLineAreas)
 }
 
 function findFrontline(friendly) {
@@ -40,16 +40,11 @@ function findFrontline(friendly) {
 }
 
 //allows an attacking area to be clicked on
-function addAttackOriginListeners(allOrigins) {
-  for (let origin of allOrigins) {
-    mapMap.children[origin].addEventListener(
-      'click',
-      attackOriginHandler,
-      false
-    )
+function addAttackAreaListeners(allAttackAreaIds) {
+  for (let origin of allAttackAreaIds) {
+    mapMap.children[origin].addEventListener("click", attackAreaHandler, false)
   }
 }
-
 
 // origin and allOrigins I am not totally certain about how come about. Could we discuss in the morning.
 /* function hightlightEnemyUnitAreas(allOrigins) {// eslint-disable-line no-unused-vars
@@ -60,52 +55,50 @@ function addAttackOriginListeners(allOrigins) {
   }
 } */
 
-
-
 //Used when an attacking unit is clicked on.
-function attackOriginHandler(event) {
+function attackAreaHandler(event) {
   console.log(event.target.id)
   //picks up the click event of the area that was clicked on and collects it's id
   attackingAreaId = event.target.id
-  //calls the displayAttackOptions of the attacking area which displays the areas that can be attacked from the friendly area that was clicked on 
+  //calls the displayAttackOptions of the attacking area which displays the areas that can be attacked from the friendly area that was clicked on
   displayAttackOptions(attackingAreaId)
-  // Not sure whatis happening here. Though this was already called in findAdjacentEneamyAreas. 
+  // Not sure whatis happening here. Though this was already called in findAdjacentEneamyAreas.
   // Or is just rebuilding a new enemyNeighbours of the attacking area that was click on?
   enemyNeighbours = game.findAdjacentEneamyAreas(attackingAreaId)
   //calls addAttackedAreaListeners
-  addAttackedAreaListeners(enemyNeighbours)
+  addDefenderAreaListeners(enemyNeighbours)
   // ditto
-  removeAttackOriginListeners(allFriendlyFrontLineAreas)
+  removeAttackAreaListeners(allFriendlyFrontLineAreas)
 }
 
 // When an attacking area is clicked on this stops it being clicked on again.
-function removeAttackOriginListeners(allOrigins) {
-  for (let origin of allOrigins) {
+function removeAttackAreaListeners(allAttackAreaIds) {
+  for (let origin of allAttackAreaIds) {
     // removes the event listner of all the children of the map element
     mapMap.children[origin].removeEventListener(
-      'click',
-      attackOriginHandler,
+      "click",
+      attackAreaHandler,
       false
     )
   }
 }
 
 //Same as above but for the enemy unit that is clicked on.
-function addAttackedAreaListeners(allOrigins) {
-  for (let origin of allOrigins) {
+function addDefenderAreaListeners(allDefendingAreaIds) {
+  for (let origin of allDefendingAreaIds) {
     //allows for a click method
     mapMap.children[origin._id].addEventListener(
-      'click',
-      attackDestinationHandler,
+      "click",
+      defenderAreaHandler,
       false
     )
   }
 }
 
 //Same as above but for the enemy unit that is clicked on.
-function attackDestinationHandler(event) {
+function defenderAreaHandler(event) {
   console.log(event.target.id)
-  //picks up the click event on the enemy that is to be attacked and collects it's id  
+  //picks up the click event on the enemy that is to be attacked and collects it's id
   defendingAreaId = event.target.id
   // collects the id of the area that is attacking.
   let attackArea = game.getArea(attackingAreaId)
@@ -116,20 +109,16 @@ function attackDestinationHandler(event) {
   // clears the highlights from the board
   clearHighlights()
   //removes the listener from enemy areas.
-  removeAttackDestinationListeners(enemyNeighbours)
+  removeDefendingAreaListeners(enemyNeighbours)
 }
 
 //Same as above but for the enemy unit that is clicked on.
-function removeAttackDestinationListeners(allOrigins) {
-  for (let origin of allOrigins) {
+function removeDefendingAreaListeners(allDefendingAreaIds) {
+  for (let origin of allDefendingAreaIds) {
     mapMap.children[origin._id].removeEventListener(
-      'click',
-      attackDestinationHandler,
+      "click",
+      defenderAreaHandler,
       false
     )
   }
 }
-
-
-
-
